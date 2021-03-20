@@ -21,6 +21,8 @@ public class runExp : MonoBehaviour
     public System.DateTime trialEndTime;
     public StringWriter resultStream;
 
+    public float meshSz;
+
     private float stimAzi;
     private float stimEle;
 
@@ -30,7 +32,6 @@ public class runExp : MonoBehaviour
     void Start()
     {
         // Initialize exp control variables
-        Debug.Log("I am alive!");
         trialNumber = 1;
         trialTotal = 5;
 
@@ -38,12 +39,14 @@ public class runExp : MonoBehaviour
         participantNo = "00";
 
         //Put reference into environment
-        //GameObject refObj = Instantiate(mdl2, new Vector3(500f, 1.36144f, 500.8f), 
-            //Quaternion.identity);
+        GameObject refObj = Instantiate(mdl, new Vector3(500f, 1.36144f, 500.8f), 
+            Quaternion.identity);
 
         // Put stimuli into environment
         InstantiateStimuli();
 
+        float meshSz = stimObj.GetComponent<MeshFilter>().mesh.bounds.size.z;
+        Debug.Log(meshSz);
         // Start trial and get sys time for trial duration record
         trialStartTime = System.DateTime.Now;
         isTrial = true;
@@ -68,13 +71,14 @@ public class runExp : MonoBehaviour
             else if (Input.GetKeyDown("up"))
             {
                 Debug.Log("up pressed");
-                adjLength ++;
+                AdjLen(stimObj, 0.01f);
+                
             }
             // Scale stim down
             else if (Input.GetKeyDown("down"))
             {
                 Debug.Log("down pressed");
-                adjLength --;
+                AdjLen(stimObj, -0.01f);
             }
         }
         else
@@ -101,14 +105,16 @@ public class runExp : MonoBehaviour
     {
         // dummy variables for testing
         float stimLen = AbsSz(stimObj);
-        //Debug.Log(stimLen);
+        Debug.Log(stimLen);
+        //Debug.Log(stim.
         
         // Find trial duration
         trialEndTime = System.DateTime.Now;
         trialDuration = trialStartTime - trialEndTime;
 
         // Record trial results, output to file
-        string trialResponses = (stimLen + ',' + stimAzi.ToString() + ',' +
+        string trialResponses = 
+            (stimLen.ToString() + ',' + stimAzi.ToString() + ',' +
             stimEle.ToString() + ',' + trialDuration.ToString() + ',' + 
             adjLength.ToString() + Environment.NewLine);
 
@@ -139,6 +145,9 @@ public class runExp : MonoBehaviour
         stimAzi = RandVal(500.5f, 499.3f);
         stimEle = RandVal(0.95f, 1.78f);
 
+        // TODO: actually would like to change these into angles rather than
+        // point-coordinates
+
         stimObj = (GameObject)Instantiate(mdl, new Vector3(stimAzi, stimEle, 500.8f),
            Quaternion.identity);
         
@@ -156,9 +165,17 @@ public class runExp : MonoBehaviour
     {
         //TODO: Debug
         // Calculate absolute length of object
-        var meshSz = go.GetComponent<MeshFilter>().mesh.bounds.size.z;
+        float meshSz = go.GetComponent<MeshFilter>().mesh.bounds.size.z;
         var trScl = go.transform.localScale.z;
         return meshSz * trScl;
+    }
+
+    void AdjLen(GameObject go, float adj)
+    {
+        // Adjust the length of game object go by factor adj
+        float meshSz = go.GetComponent<MeshFilter>().mesh.bounds.size.z;
+        var trScl = go.transform.localScale.z;
+        go.transform.localScale = new Vector3(1, 1, trScl+adj/meshSz); // change its local scale in x y z format
     }
 
 
