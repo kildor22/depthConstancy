@@ -112,7 +112,7 @@ public class runExp : MonoBehaviour
         string trialResponses = 
             (refLen.ToString() + ',' + stimAzi.ToString() + ',' +
             stimEle.ToString() + ',' + trialDuration.ToString() + ',' + 
-            adjLenh.ToString() + Environment.NewLine);
+            adjLen.ToString() + Environment.NewLine);
 
         using (StreamWriter resultStream = File.AppendText(Application.dataPath +
             "/results/p_" + participantNo + ".txt"))
