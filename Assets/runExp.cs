@@ -7,6 +7,11 @@ using UnityEngine;
 
 public class runExp : MonoBehaviour
 {
+    /// <summary>
+    /// Main class for the Depth Constancy experiment described by Allison and
+    /// Wilcox (publication pending.) Code written by Cyan Kuo (2021).
+    /// </summary>
+
     public GameObject mdl;
     public int trialNumber;
     public int trialTotal;
@@ -14,7 +19,6 @@ public class runExp : MonoBehaviour
 
     public GameObject stimObj;
     public GameObject refObj;
-    public float adjLength;
 
     // Trial duration calculations
     public System.TimeSpan trialDuration;
@@ -22,29 +26,28 @@ public class runExp : MonoBehaviour
     public System.DateTime trialEndTime;
     public StringWriter resultStream;
 
-    public float meshSz;
+    private float meshSz;
+    private bool isTrial;
 
-    private float stimAzi;
-    private float stimEle;
-
-    public bool isTrial;
-
-    // Start is called before the first frame update
+    
     void Start()
     {
-        // Initialize exp control variables
+        ///<summary>
+        /// Start is called before the first frame update and initializes
+        /// the environment in preparation for the experimental procedure
+        /// </summary>
+
+        // Initialize exp control variables and participant details
         trialNumber = 1;
         trialTotal = 5;
-
-        // Set participant number
         participantNo = "00";
 
-        //Put reference into environment
+        // Put reference and stimuli into environment
         InstantiateReference();
-
-        // Put stimuli into environment
         InstantiateStimuli();
-        float meshSz = stimObj.GetComponent<MeshFilter>().mesh.bounds.size.z;
+
+        // Mesh size for calculating absolute measurements
+        meshSz = stimObj.GetComponent<MeshFilter>().mesh.bounds.size.z;
 
         // Start trial and get sys time for trial duration record
         trialStartTime = System.DateTime.Now;
@@ -53,6 +56,15 @@ public class runExp : MonoBehaviour
     }
     void Update()
     {
+        ///<summary>
+        /// The procedures in this method run every frame, checks for the
+        /// confirmation button event, in which case the trial ends and the 
+        /// next begins or the script stops if the total trials have been
+        /// reached. If no confirmation is pressed, check for a length
+        /// manipulation button event and adjust the length of stimObj
+        /// accordingly.
+        ///</summary>
+
         // A trial is in session
         if (isTrial)
         {
@@ -87,22 +99,30 @@ public class runExp : MonoBehaviour
             {
                 trialStartTime = System.DateTime.Now;
                 trialNumber++;
-                
-                isTrial = true;
-                adjLength = 0;
                 InstantiateReference();
                 InstantiateStimuli();
+                isTrial = true;
             }
         }
     }
 
     void OutputTrialResults()
     {
+        ///<summary>
+        /// Runs on confirmation event. Output a line to a .csv file with the
+        /// results of the trial. Independent variables: refLen - the length of
+        /// the reference object, adjLen - the adjusted length of the stimuli
+        /// object, azi - the azimuth from reference to stimuli, ele - the
+        /// elevation from reference to stimuli, and the trial duration
+        /// </summary>
+
         // dummy variables for testing
         float refLen = AbsoluteSize(refObj);
-        Debug.Log(refLen);
         float adjLen = AbsoluteSize(stimObj);
-        Debug.Log(adjLen);
+        float azi = CalcAzimuth(stimObj,refObj);
+        float ele = CalcElevation(stimObj, refObj);
+        //Debug.Log(azi);
+        //Debug.Log(ele);
         
         // Find trial duration
         trialEndTime = System.DateTime.Now;
@@ -110,12 +130,12 @@ public class runExp : MonoBehaviour
 
         // Record trial results, output to file
         string trialResponses = 
-            (refLen.ToString() + ',' + stimAzi.ToString() + ',' +
-            stimEle.ToString() + ',' + trialDuration.ToString() + ',' + 
-            adjLen.ToString() + Environment.NewLine);
+           (refLen.ToString() + ',' + azi.ToString() + ',' +
+           ele.ToString() + ',' + trialDuration.ToString() + ',' + 
+           adjLen.ToString() + Environment.NewLine);
 
         using (StreamWriter resultStream = File.AppendText(Application.dataPath +
-            "/results/p_" + participantNo + ".txt"))
+           "/results/p_" + participantNo + ".csv"))
         {
             resultStream.Write(trialResponses);
         }
@@ -125,18 +145,29 @@ public class runExp : MonoBehaviour
 
     void InstantiateStimuli()
     {
+        ///<summary>
+        /// Instantiates the stimuli object from model mdl and with random x
+        /// and y values for position (left/right, up/down)
+        /// </summary>
+        
         // Range of azimuth and elevation values
-        stimAzi = RandVal(500.5f, 499.3f);
-        stimEle = RandVal(0.95f, 1.78f);
+        float stimX = RandVal(500.5f, 499.3f);
+        float stimY = RandVal(0.95f, 1.78f);
 
-        // TODO: change these into angles rather than point-coordinates
         stimObj = (GameObject)Instantiate(mdl, 
-            new Vector3(stimAzi, stimEle, 500.8f), Quaternion.identity);
+           new Vector3(stimX, stimY, 500.8f), Quaternion.identity);
         
     }
 
     void InstantiateReference()
     {
+        ///<summary>
+        /// Instantiates the reference object from model mdl and with random
+        /// length, and fixed position in front of, and in line with the
+        /// camera.
+        /// </summary>
+        
+        // Reference object is fixed, but changes length
         refObj = Instantiate(mdl, new Vector3(500f, 1.36144f, 500.8f),
                     Quaternion.identity);
         refObj.transform.localScale = new Vector3(1, 1,
@@ -146,7 +177,10 @@ public class runExp : MonoBehaviour
 
     float RandVal(float max, float min) 
     {
-        // Calculate random given range
+        ///<summary>
+        /// Calculate random float given range max and min
+        ///</summary>
+        
         System.Random random = new System.Random();
         double val = (random.NextDouble() * (max - min) + min);
         return (float) val;
@@ -154,26 +188,66 @@ public class runExp : MonoBehaviour
 
     float AbsoluteSize(GameObject go)
     {
-        //TODO: Debug
-        // Calculate absolute length of object
-        float meshSz = go.GetComponent<MeshFilter>().mesh.bounds.size.z;
+        ///<summary>
+        /// Obtain the absolute size of the unity game object go by multiplying
+        /// the model's mesh size by the scale factor
+        ///</summary>
+        
         var trScl = go.transform.localScale.z;
         return meshSz * trScl;
     }
 
     void AdjLen(GameObject go, float adj)
     {
-        // Adjust the length of game object go by adj
-        // Given that absolute size is given by mesh bounds * local scale
-        // Adding a 1m in Unity coordinates to the size of an object is
-        // 1m/mesh bounds + to the local scale
-
+        ///<summary> 
+        /// Adjust the length of game object go by adj.
+        /// Given that absolute size is given by mesh bounds * local scale
+        /// Adding a 1m in Unity coordinates to the size of an object is
+        /// 1m/mesh bounds + to the local scale
+        /// </summary>
+        
         float meshSz = go.GetComponent<MeshFilter>().mesh.bounds.size.z;
         var trScl = go.transform.localScale.z;
         // change its local scale
         go.transform.localScale = new Vector3(1, 1, trScl+adj/meshSz);
     }
 
+    float CalcAzimuth(GameObject go1, GameObject go2) 
+    {
+        ///<summary>
+        /// Given two game objects, calculate their azimuth
+        /// </summary>
+        
+        // get x,z coordinates of objects
+        var vec1 = new Vector2(go1.transform.position.x, go1.transform.position.z);
+        var vec2 = new Vector2(go2.transform.position.x, go2.transform.position.z);
+        Debug.Log(vec1);
+        Debug.Log(vec2);
+        // get camera offset along the same axes
+        var vecCam = new Vector2
+            (Camera.main.transform.position.x, Camera.main.transform.position.z);
+        // calc angle, removing offset from camera
+        return Vector2.SignedAngle(vec1-vecCam,vec2-vecCam);
+        
+    }
 
+    float CalcElevation(GameObject go1, GameObject go2)
+    {
+        ///<summary>
+        /// Given two game objects, calculate their elevation
+        /// </summary>
+        
+        // get x,y coordinates of objects
+        var vec1 = new Vector2(go1.transform.position.y, go1.transform.position.z);
+        var vec2 = new Vector2(go2.transform.position.y, go2.transform.position.z);
+        Debug.Log(vec1);
+        Debug.Log(vec2);
+        // get camera offset along the same axes
+        var vecCam = new Vector2
+            (Camera.main.transform.position.y, Camera.main.transform.position.z);
+        // calc angle, removing offset from camera
+        return Vector2.SignedAngle(vec1 - vecCam, vec2 - vecCam);
+
+    }
 }
 
