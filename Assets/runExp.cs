@@ -24,10 +24,11 @@ public class runExp : MonoBehaviour
     public System.TimeSpan trialDuration;
     public System.DateTime trialStartTime;
     public System.DateTime trialEndTime;
-    public StringWriter resultStream;
+    public StreamWriter resultStream;
 
     private float meshSz;
     private bool isTrial;
+    private string folderName;
 
     
     void Start()
@@ -41,6 +42,12 @@ public class runExp : MonoBehaviour
         trialNumber = 1;
         trialTotal = 5;
         participantNo = "00";
+
+        // Create folder path, create folder in user director
+        folderName = Application.persistentDataPath + "/results";
+        System.IO.Directory.CreateDirectory(folderName);
+        Debug.Log("Path to my file: {0}\n" +  folderName);
+        
 
         // Put reference and stimuli into environment
         InstantiateReference();
@@ -134,11 +141,15 @@ public class runExp : MonoBehaviour
            ele.ToString() + ',' + trialDuration.ToString() + ',' + 
            adjLen.ToString() + Environment.NewLine);
 
-        using (StreamWriter resultStream = File.AppendText(Application.dataPath +
-           "/results/p_" + participantNo + ".csv"))
-        {
+        
+        //using (StreamWriter resultStream = File.AppendText(
+        //    folderName + "/p" + participantNo + "_test.csv"));
+        //{
+            Debug.Log(trialResponses);
+            resultStream = new StreamWriter( folderName + "/p" + participantNo + "_test.csv", append: true);
             resultStream.Write(trialResponses);
-        }
+            resultStream.Close();
+        //}
 
 
     }

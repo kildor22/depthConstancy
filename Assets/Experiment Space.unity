@@ -246,9 +246,7 @@ MonoBehaviour:
   trialTotal: 0
   participantNo: 
   stimObj: {fileID: 0}
-  adjLength: 0
-  meshSz: 0
-  isTrial: 0
+  refObj: {fileID: 0}
 --- !u!1 &541096545
 GameObject:
   m_ObjectHideFlags: 0
