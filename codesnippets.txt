@@ -1,0 +1,37 @@
+FileInfo trialConds = null;
+TextReader reader = null;
+
+// Read from csv file if exists
+trialConds = new FileInfo(Application.dataPath + "/trials.csv");
+if (trialConds != null && trialConds.Exists)
+{
+	read = trialConds.OpenText();
+}
+else
+{
+	// If csv file doesn't exist, try from Resources
+	TextAsset dat = (TextAsset)Resources.Load("data", typeof(TextAsset));
+	read = new StringReader(puzdata.text);
+}
+if (reader == null)
+{
+	Debug.Log("No trial data found")
+}
+else
+{
+	while((string conds = reader.ReadLine()) !=null)
+	// Do a thing
+	string [] Split = MainString.Split(new Char [] {','});
+	//SHOW RESULT
+	MessageBox.Show(Convert.ToString(Split[0]));
+	MessageBox.Show(Convert.ToString(Split[1]));
+}
+
+/// Reads in a .csv line by line, which dictates how the experiment is to be run
+// for each line in file
+// InstantiateStimuli(MidL)
+// InstantiateEccentric(Disp, Azi, Ele)
+// if TrialType == "A":
+//	then runAdjustmentTrial()
+// if TrialType == "2":
+//	then run2AFCTrial()
