@@ -113,8 +113,6 @@ public class runExpBackFacing : MonoBehaviour
         }
     }
 
-
-
     void OutputTrialResults()
     {
         ///<summary>
@@ -165,7 +163,7 @@ public class runExpBackFacing : MonoBehaviour
 
         // Range of azimuth and elevation values
         float stimX = RandVal(500.5f, 499.3f);
-        float stimY = RandVal(1.2f, 2f);
+        float stimY = RandVal(0.95f, 1.78f);
 
         stimObj = (GameObject)Instantiate(mdl,
            new Vector3(stimX, stimY, 500.8f), Quaternion.Euler(180.0f,0,0));
@@ -181,7 +179,7 @@ public class runExpBackFacing : MonoBehaviour
         /// </summary>
 
         // Reference object is fixed, but changes length
-        refObj = Instantiate(mdl, new Vector3(500f, 1.55f, 500.8f),
+        refObj = Instantiate(mdl, new Vector3(500f, 1.36144f, 500.8f),
                     Quaternion.Euler(180.0f, 0, 0));
         refObj.transform.localScale = new Vector3(1, 1,
             RandVal(0.5f, 1.5f));
