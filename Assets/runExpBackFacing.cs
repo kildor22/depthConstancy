@@ -42,13 +42,8 @@ public class runExpBackFacing : MonoBehaviour
 
         //private System.Windows.Forms.OpenFileDialog openFileDialog1;
 
-        string sourceDirectory = "C:\";
+        string sourceDirectory = "C:\\";
 
-        try
-        {
-            var csvFile = Directory.EnumerateDirectoriesFiles(sourceDirectory, ".csv");
-            for
-        }
 
     // Initialize exp control variables and participant details
         trialNumber = 1;

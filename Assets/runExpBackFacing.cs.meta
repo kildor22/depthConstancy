@@ -4,7 +4,7 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - mdl: {fileID: 100000, guid: 56f54cea4b567734ab22cadeb68bf0e4, type: 3}
+  - mdl: {fileID: 100000, guid: 708dbf6af80312e448a0146658e50015, type: 3}
   - stimObj: {instanceID: 0}
   - refObj: {instanceID: 0}
   executionOrder: 0
