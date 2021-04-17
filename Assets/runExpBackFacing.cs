@@ -29,7 +29,6 @@ public class runExpBackFacing : MonoBehaviour
     private float meshSz;
     private bool isTrial;
     private string folderName;
-    
 
 
     void Start()
@@ -38,19 +37,8 @@ public class runExpBackFacing : MonoBehaviour
         /// Start is called before the first frame update and initializes
         /// the environment in preparation for the experimental procedure
         /// </summary>
-        /// 
 
-        //private System.Windows.Forms.OpenFileDialog openFileDialog1;
-
-        string sourceDirectory = "C:\";
-
-        try
-        {
-            var csvFile = Directory.EnumerateDirectoriesFiles(sourceDirectory, ".csv");
-            for
-        }
-
-    // Initialize exp control variables and participant details
+        // Initialize exp control variables and participant details
         trialNumber = 1;
         trialTotal = 5;
         participantNo = "00";
