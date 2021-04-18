@@ -24,12 +24,15 @@ public class runExpBackFacing : MonoBehaviour
     public System.TimeSpan trialDuration;
     public System.DateTime trialStartTime;
     public System.DateTime trialEndTime;
-    public StreamWriter resultStream;
+    
+    protected StreamWriter resultStream;
+    //protected FileInfo sourceFile = null;
+    protected StreamReader reader = null;
+    protected string text = " "; // assigned to allow first line to be read below
 
     private float meshSz;
     private bool isTrial;
     private string folderName;
-    
 
 
     void Start()
@@ -42,7 +45,8 @@ public class runExpBackFacing : MonoBehaviour
 
         //private System.Windows.Forms.OpenFileDialog openFileDialog1;
 
-        string sourceDirectory = "C:\\";
+        FileInfo sourceFile = new FileInfo (Application.dataPath + "/Resources/test.csv");
+        reader = sourceFile.OpenText();
 
 
     // Initialize exp control variables and participant details
@@ -53,7 +57,6 @@ public class runExpBackFacing : MonoBehaviour
         // Create folder path, create folder in user director
         folderName = Application.persistentDataPath + "/results";
         System.IO.Directory.CreateDirectory(folderName);
-        Debug.Log("Path to my file: {0}\n" + folderName);
 
 
         // Put reference and stimuli into environment
@@ -112,6 +115,12 @@ public class runExpBackFacing : MonoBehaviour
             else
             {
                 trialStartTime = System.DateTime.Now;
+                if (text != null)
+                {
+                    text = reader.ReadLine();
+                    Debug.Log(text);
+                    //string[] line = s.Split(',');
+                }
                 trialNumber++;
                 InstantiateReference();
                 InstantiateStimuli();
@@ -135,8 +144,6 @@ public class runExpBackFacing : MonoBehaviour
         float adjLen = AbsoluteSize(stimObj);
         float azi = CalcAzimuth(stimObj, refObj);
         float ele = CalcElevation(stimObj, refObj);
-        //Debug.Log(azi);
-        //Debug.Log(ele);
 
         // Find trial duration
         trialEndTime = System.DateTime.Now;
@@ -152,7 +159,7 @@ public class runExpBackFacing : MonoBehaviour
         //using (StreamWriter resultStream = File.AppendText(
         //    folderName + "/p" + participantNo + "_test.csv"));
         //{
-        Debug.Log(trialResponses);
+        //Debug.Log(trialResponses);
         resultStream = new StreamWriter(folderName + "/p" + participantNo + "_test.csv", append: true);
         resultStream.Write(trialResponses);
         resultStream.Close();
@@ -258,8 +265,6 @@ public class runExpBackFacing : MonoBehaviour
         // get x,y coordinates of objects
         var vec1 = new Vector2(go1.transform.position.y, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.y, go2.transform.position.z);
-        Debug.Log(vec1);
-        Debug.Log(vec2);
         // get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.y, Camera.main.transform.position.z);
