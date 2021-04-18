@@ -44,9 +44,14 @@ public class runExpBackFacing : MonoBehaviour
         // Read in trial conditions from file
         FileInfo sourceFile = new FileInfo (Application.dataPath + "/Resources/test.csv");
         trialReader = sourceFile.OpenText();
+        text = trialReader.ReadLine();
+        text = trialReader.ReadLine();
+
+        Debug.Log(text);
+        string[] conds = text.Split(',');
 
 
-    // Initialize exp control variables and participant details
+        // Initialize exp control variables and participant details
         trialNumber = 1;
         participantNo = "00";
 
@@ -56,8 +61,8 @@ public class runExpBackFacing : MonoBehaviour
 
 
         // Put reference and stimuli into environment
-        InstantiateReference();
-        InstantiateStimuli();
+        InstantiateReference(conds[4]);
+        InstantiateStimuli(conds[2], conds[3]);
 
         // Mesh size for calculating absolute measurements
         meshSz = stimObj.GetComponent<MeshFilter>().mesh.bounds.size.z;
@@ -116,8 +121,9 @@ public class runExpBackFacing : MonoBehaviour
                 string[] conds = text.Split(',');
                 //Debug.Log(conds[1]);
                 trialNumber++;
-                InstantiateReference();
-                InstantiateStimuli();
+                InstantiateReference(conds[4]);
+                InstantiateStimuli(conds[2], conds[3]);
+                //Debug.Log(conds[3]);
                 isTrial = true;
             }
         }
@@ -149,48 +155,43 @@ public class runExpBackFacing : MonoBehaviour
            ele.ToString() + ',' + trialDuration.ToString() + ',' +
            adjLen.ToString() + Environment.NewLine);
 
-
-        //using (StreamWriter resultStream = File.AppendText(
-        //    folderName + "/p" + participantNo + "_test.csv"));
-        //{
-        //Debug.Log(trialResponses);
         resultStream = new StreamWriter(folderName + "/p" + participantNo + "_test.csv", append: true);
         resultStream.Write(trialResponses);
         resultStream.Close();
-        //}
 
 
     }
 
-    void InstantiateStimuli()
+    void InstantiateStimuli(string azi, string ele)
     {
         ///<summary>
         /// Instantiates the stimuli object from model mdl and with random x
         /// and y values for position (left/right, up/down)
         /// </summary>
+        /// 
 
         // Range of azimuth and elevation values
-        float stimX = RandVal(500.5f, 499.3f);
-        float stimY = RandVal(0.95f, 1.78f);
-
+        float val1 = float.Parse(azi);
+        float val2 = float.Parse(ele);
         stimObj = (GameObject)Instantiate(mdl,
-           new Vector3(stimX, stimY, 500.8f), Quaternion.Euler(180.0f,0,0));
+           new Vector3(val1, val2, 500.8f), Quaternion.identity);
 
     }
 
-    void InstantiateReference()
+    void InstantiateReference(string len)
     {
         ///<summary>
         /// Instantiates the reference object from model mdl and with random
         /// length, and fixed position in front of, and in line with the
         /// camera.
         /// </summary>
+        /// 
 
         // Reference object is fixed, but changes length
-        refObj = Instantiate(mdl, new Vector3(500f, 1.36144f, 500.8f),
-                    Quaternion.Euler(180.0f, 0, 0));
-        refObj.transform.localScale = new Vector3(1, 1,
-            RandVal(0.5f, 1.5f));
+        float val = float.Parse(len);
+        refObj = Instantiate(mdl, new Vector3(500f, 1.5f, 500.8f),
+                    Quaternion.identity);
+        refObj.transform.localScale = new Vector3(1, 1, val);
 
     }
 
