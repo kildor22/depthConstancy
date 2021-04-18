@@ -14,7 +14,6 @@ public class runExpBackFacing : MonoBehaviour
 
     public GameObject mdl;
     public int trialNumber;
-    public int trialTotal;
     public string participantNo;
 
     public GameObject stimObj;
@@ -26,8 +25,7 @@ public class runExpBackFacing : MonoBehaviour
     public System.DateTime trialEndTime;
     
     protected StreamWriter resultStream;
-    //protected FileInfo sourceFile = null;
-    protected StreamReader reader = null;
+    protected StreamReader trialReader = null;
     protected string text = " "; // assigned to allow first line to be read below
 
     private float meshSz;
@@ -43,15 +41,13 @@ public class runExpBackFacing : MonoBehaviour
         /// </summary>
         /// 
 
-        //private System.Windows.Forms.OpenFileDialog openFileDialog1;
-
+        // Read in trial conditions from file
         FileInfo sourceFile = new FileInfo (Application.dataPath + "/Resources/test.csv");
-        reader = sourceFile.OpenText();
+        trialReader = sourceFile.OpenText();
 
 
     // Initialize exp control variables and participant details
         trialNumber = 1;
-        trialTotal = 5;
         participantNo = "00";
 
         // Create folder path, create folder in user director
@@ -107,7 +103,7 @@ public class runExpBackFacing : MonoBehaviour
         else
         {
             // Total number of trials completed, quit
-            if (trialNumber == trialTotal)
+            if (trialReader.EndOfStream)
             {
                 Application.Quit();
             }
@@ -115,12 +111,10 @@ public class runExpBackFacing : MonoBehaviour
             else
             {
                 trialStartTime = System.DateTime.Now;
-                if (text != null)
-                {
-                    text = reader.ReadLine();
-                    Debug.Log(text);
-                    //string[] line = s.Split(',');
-                }
+                text = trialReader.ReadLine();
+                Debug.Log(text);
+                string[] conds = text.Split(',');
+                //Debug.Log(conds[1]);
                 trialNumber++;
                 InstantiateReference();
                 InstantiateStimuli();
@@ -246,8 +240,6 @@ public class runExpBackFacing : MonoBehaviour
         // get x,z coordinates of objects
         var vec1 = new Vector2(go1.transform.position.x, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.x, go2.transform.position.z);
-        Debug.Log(vec1);
-        Debug.Log(vec2);
         // get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.x, Camera.main.transform.position.z);
