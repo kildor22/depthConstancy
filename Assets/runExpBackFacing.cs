@@ -151,11 +151,15 @@ public class runExpBackFacing : MonoBehaviour
         float adjLen = AbsoluteSize(stimObj);
         float azi = CalcAzimuth(stimObj, refObj);
         float ele = CalcElevation(stimObj, refObj);
+        //float eleSanityCheck = CalcAngle(stimObj, refObj);
 
         // Find trial duration
         trialEndTime = System.DateTime.Now;
         trialDuration = trialEndTime - trialStartTime;
 
+        //Debug.Log(azi);
+        Debug.Log(azi);
+        //Debug.Log(eleSanityCheck);
         // Record trial results, output to file
         string trialResponses =
            (refLen.ToString() + ',' + azi.ToString() + ',' +
@@ -196,7 +200,7 @@ public class runExpBackFacing : MonoBehaviour
 
         // Reference object is fixed, but changes length
         float val = float.Parse(len);
-        refObj = Instantiate(mdl, new Vector3(500f, 1.5f, 500.8f),
+        refObj = Instantiate(mdl, new Vector3(500f, 1.6f, 500.8f),
                     Quaternion.identity);
         refObj.transform.localScale = new Vector3(1, 1, val);
 
@@ -263,14 +267,17 @@ public class runExpBackFacing : MonoBehaviour
         /// </summary>
 
         // get x,y coordinates of objects
-        var vec1 = new Vector2(go1.transform.position.y, go1.transform.position.z);
-        var vec2 = new Vector2(go2.transform.position.y, go2.transform.position.z);
+        var vec1 = new Vector2(go1.transform.position.z, go1.transform.position.y);
+        var vec2 = new Vector2(go2.transform.position.z, go2.transform.position.y);
         // get camera offset along the same axes
         var vecCam = new Vector2
-            (Camera.main.transform.position.y, Camera.main.transform.position.z);
+            (Camera.main.transform.position.x, Camera.main.transform.position.y);
         // calc angle, removing offset from camera
-        return Vector2.SignedAngle(vec1 - vecCam, vec2 - vecCam);
+        return Vector2.SignedAngle(vec2 - vecCam, vec1 - vecCam);
 
     }
+
+
+
 }
 
