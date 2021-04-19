@@ -27,6 +27,7 @@ public class runExpBackFacing : MonoBehaviour
     protected StreamWriter resultStream;
     protected StreamReader trialReader = null;
     protected string text = " "; // assigned to allow first line to be read below
+    protected string[] conds = null;
 
     private float meshSz;
     private bool isTrial;
@@ -48,7 +49,7 @@ public class runExpBackFacing : MonoBehaviour
         text = trialReader.ReadLine();
 
         Debug.Log(text);
-        string[] conds = text.Split(',');
+        conds = text.Split(',');
 
 
         // Initialize exp control variables and participant details
@@ -86,23 +87,31 @@ public class runExpBackFacing : MonoBehaviour
         // A trial is in session
         if (isTrial)
         {
-            // User confirms their manipulation
-            if (Input.GetKeyDown("space"))
-            {
-                OutputTrialResults();
-                isTrial = false;
-                Destroy(stimObj);
-            }
-            // Scale stim up
-            else if (Input.GetKeyDown("up"))
-            {
-                AdjLen(stimObj, 0.01f);
 
-            }
-            // Scale stim down
-            else if (Input.GetKeyDown("down"))
+            if (conds[0] == "A")
             {
-                AdjLen(stimObj, -0.01f);
+                // User confirms their manipulation
+                if (Input.GetKeyDown("space"))
+                {
+                    OutputTrialResults();
+                    isTrial = false;
+                    Destroy(stimObj);
+                }
+                // Scale stim up
+                else if (Input.GetKeyDown("up"))
+                {
+                    AdjLen(stimObj, 0.01f);
+
+                }
+                // Scale stim down
+                else if (Input.GetKeyDown("down"))
+                {
+                    AdjLen(stimObj, -0.01f);
+                }
+            }
+            if (conds[0] == "2")
+            {
+                Debug.Log("2AFC");
             }
         }
         else
@@ -118,12 +127,10 @@ public class runExpBackFacing : MonoBehaviour
                 trialStartTime = System.DateTime.Now;
                 text = trialReader.ReadLine();
                 Debug.Log(text);
-                string[] conds = text.Split(',');
-                //Debug.Log(conds[1]);
+                conds = text.Split(',');
                 trialNumber++;
                 InstantiateReference(conds[4]);
                 InstantiateStimuli(conds[2], conds[3]);
-                //Debug.Log(conds[3]);
                 isTrial = true;
             }
         }
