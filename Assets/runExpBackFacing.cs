@@ -20,10 +20,11 @@ public class runExpBackFacing : MonoBehaviour
     public GameObject refObj;
 
     // Trial duration calculations
-    public System.TimeSpan trialDuration;
-    public System.DateTime trialStartTime;
-    public System.DateTime trialEndTime;
+    private System.TimeSpan trialDuration;
+    private System.DateTime trialStartTime;
+    private System.DateTime trialEndTime;
     
+    // Read/write
     protected StreamWriter resultStream;
     protected StreamReader trialReader = null;
     protected string text = " "; // allow first line to be read below
@@ -32,6 +33,7 @@ public class runExpBackFacing : MonoBehaviour
     private float meshSz;
     private bool isTrial;
     private string folderName;
+    private GameObject sel = null;
 
 
     void Start()
@@ -253,7 +255,7 @@ public class runExpBackFacing : MonoBehaviour
 
         float meshSz = go.GetComponent<MeshFilter>().mesh.bounds.size.z;
         var trScl = go.transform.localScale.z;
-        // change its local scale
+        // Change local scale
         go.transform.localScale = new Vector3(1, 1, trScl + adj / meshSz);
     }
 
@@ -263,13 +265,13 @@ public class runExpBackFacing : MonoBehaviour
         /// Given two game objects, calculate their azimuth
         /// </summary>
 
-        // get x,z coordinates of objects
+        // Get x,z coordinates of objects
         var vec1 = new Vector2(go1.transform.position.x, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.x, go2.transform.position.z);
-        // get camera offset along the same axes
+        // Get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.x, Camera.main.transform.position.z);
-        // calc angle, removing offset from camera
+        // Calc angle, removing offset from camera
         return Vector2.SignedAngle(vec1 - vecCam, vec2 - vecCam);
 
     }
@@ -280,12 +282,12 @@ public class runExpBackFacing : MonoBehaviour
         /// Given two game objects, calculate their elevation
         /// </summary>
 
-        // get x,y coordinates of objects
+        // Get x,y coordinates of objects
         var vec1 = new Vector2(go1.transform.position.z, go1.transform.position.y);
         var vec2 = new Vector2(go2.transform.position.z, go2.transform.position.y);
         var vecCam = new Vector2
             (Camera.main.transform.position.x, Camera.main.transform.position.y);
-        // calc angle, removing offset from camera
+        // Calc angle, removing offset from camera
         return Vector2.SignedAngle(vec2 - vecCam, vec1 - vecCam);
 
     }
@@ -297,14 +299,14 @@ public class runExpBackFacing : MonoBehaviour
         /// Given elevation and azimuth, calculate its position in Unity coordinates
         ///</summary>
         
-        // calculate the x,y rotation of object
+        // Calculate the x,y rotation of object
         Quaternion rotX = Quaternion.AngleAxis(
             Camera.main.transform.eulerAngles.x + val2, Vector3.left
             );
         Quaternion rotY = Quaternion.AngleAxis(
             Camera.main.transform.eulerAngles.y + val1, Vector3.up
             );
-        // incorporate x,y rotation and magnitude to find location
+        // Incorporate x,y rotation and magnitude to find location
         Vector3 pos = rotX*rotY * Vector3.forward * dis;
         Debug.Log(pos + Camera.main.transform.position);
         return pos+Camera.main.transform.position;
