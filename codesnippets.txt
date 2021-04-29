@@ -9,3 +9,86 @@ if (openDialog.ShowDialog() == DialogResult.OK)
 {
     string file = openDialog.FileName;
 }
+
+    Quaternion CalcEleGivenAng(float ang, float dis)
+    {
+        ///<summary>
+        /// Given an angle, calculate its position in Unity coordinates
+        ///</summary>
+        Quaternion pos = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y + ang, Vector3.up);
+        Debug.Log("Elevation as quaternion: " + pos.eulerAngles);
+        return pos;
+
+    }
+
+    Quaternion CalcAziGivenAng(float ang, float dis)
+    {
+        ///<summary>
+        /// Given an angle, calculate its position in Unity coordinates
+        ///</summary>
+
+        Quaternion pos = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.x + ang, Vector3.right);
+        Debug.Log("Azimuth as quaternion: " + pos.eulerAngles);
+        return pos;
+
+    }
+    
+        float CalcAzimuth(GameObject go1, GameObject go2)
+    {
+        ///<summary>
+        /// Given two game objects, calculate their azimuth
+        /// </summary>
+
+        // get x,z coordinates of objects
+        var vec1 = new Vector2(go1.transform.position.x, go1.transform.position.z);
+        var vec2 = new Vector2(go2.transform.position.x, go2.transform.position.z);
+        // get camera offset along the same axes
+        var vecCam = new Vector2
+            (Camera.main.transform.position.x, Camera.main.transform.position.z);
+        // calc angle, removing offset from camera
+        return Vector2.SignedAngle(vec1 - vecCam, vec2 - vecCam);
+
+    }
+
+    float CalcElevation(GameObject go1, GameObject go2)
+    {
+        ///<summary>
+        /// Given two game objects, calculate their elevation
+        /// </summary>
+
+        // get x,y coordinates of objects
+        var vec1 = new Vector2(go1.transform.position.z, go1.transform.position.y);
+        var vec2 = new Vector2(go2.transform.position.z, go2.transform.position.y);
+        var vecCam = new Vector2
+            (Camera.main.transform.position.x, Camera.main.transform.position.y);
+        // calc angle, removing offset from camera
+        return Vector2.SignedAngle(vec2 - vecCam, vec1 - vecCam);
+
+    }
+    
+        float RandVal(float max, float min)
+    {
+        ///<summary>
+        /// Calculate random float given range max and min
+        ///</summary>
+
+        System.Random random = new System.Random();
+        double val = (random.NextDouble() * (max - min) + min);
+        return (float)val;
+    }
+    
+        void InstantiateStimuli(string val1, string val2)
+    {
+        ///<summary>
+        /// Instantiates the stimuli object from model mdl and with random x
+        /// and y values for position (left/right, up/down)
+        /// </summary>
+        /// 
+
+        // Range of azimuth and elevation values
+        //var val1 = CalcAziGivenAng(float.Parse(azi), 0.8f);
+        //var val2 = CalcEleGivenAng(float.Parse(ele), 0.8f);
+        
+        stimObj = (GameObject)Instantiate(mdl,
+           CalcPosGivenAziEle(float.Parse(val1), float.Parse(val2), 0.8f), Quaternion.identity);
+        //Debug.Log("Distance: " + Vector3.Distance(refObj.transform.position, stimObj.transform.position));

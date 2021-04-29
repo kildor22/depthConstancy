@@ -43,7 +43,8 @@ public class runExpBackFacing : MonoBehaviour
         /// 
 
         // Read in trial conditions from file
-        FileInfo sourceFile = new FileInfo (Application.dataPath + "/Resources/test_ang.csv");
+        FileInfo sourceFile = new FileInfo (Application.dataPath + 
+            "/Resources/test_ang.csv");
         trialReader = sourceFile.OpenText();
         text = trialReader.ReadLine();
         text = trialReader.ReadLine();
@@ -126,7 +127,6 @@ public class runExpBackFacing : MonoBehaviour
             {
                 trialStartTime = System.DateTime.Now;
                 text = trialReader.ReadLine();
-                //Debug.Log(text);
                 conds = text.Split(',');
                 trialNumber++;
                 InstantiateReference(conds[4]);
@@ -146,20 +146,15 @@ public class runExpBackFacing : MonoBehaviour
         /// elevation from reference to stimuli, and the trial duration
         /// </summary>
 
-        // dummy variables for testing
         float refLen = AbsoluteSize(refObj);
         float adjLen = AbsoluteSize(stimObj);
         float azi = CalcAzimuth(stimObj, refObj);
         float ele = CalcElevation(stimObj, refObj);
-        //float eleSanityCheck = CalcAngle(stimObj, refObj);
 
         // Find trial duration
         trialEndTime = System.DateTime.Now;
         trialDuration = trialEndTime - trialStartTime;
 
-        //Debug.Log(azi);
-        //Debug.Log(ele);
-        // Record trial results, output to file
         string trialResponses =
            (refLen.ToString() + ',' + azi.ToString() + ',' +
            ele.ToString() + ',' + trialDuration.ToString() + ',' +
@@ -169,25 +164,17 @@ public class runExpBackFacing : MonoBehaviour
         resultStream.Write(trialResponses);
         resultStream.Close();
 
-
     }
 
-    void InstantiateStimuli(string azi, string ele)
+    void InstantiateStimuli(string val1, string val2)
     {
         ///<summary>
         /// Instantiates the stimuli object from model mdl and with random x
         /// and y values for position (left/right, up/down)
         /// </summary>
-        /// 
-
-        // Range of azimuth and elevation values
-        //var val1 = CalcAziGivenAng(float.Parse(azi), 0.8f);
-        //var val2 = CalcEleGivenAng(float.Parse(ele), 0.8f);
-        //Debug.Log("azi: " + val1);
         
         stimObj = (GameObject)Instantiate(mdl,
-           CalcPosGivenAziEle(float.Parse(azi), float.Parse(ele), 0.8f), Quaternion.identity);
-        //Debug.Log("Distance: " + Vector3.Distance(refObj.transform.position, stimObj.transform.position));
+           CalcPosGivenAziEle(float.Parse(val1), float.Parse(val2), 0.8f), Quaternion.identity);
 
     }
 
@@ -198,7 +185,6 @@ public class runExpBackFacing : MonoBehaviour
         /// length, and fixed position in front of, and in line with the
         /// camera.
         /// </summary>
-        /// 
 
         // Reference object is fixed, but changes length
         float val = float.Parse(len);
@@ -208,16 +194,6 @@ public class runExpBackFacing : MonoBehaviour
 
     }
 
-    float RandVal(float max, float min)
-    {
-        ///<summary>
-        /// Calculate random float given range max and min
-        ///</summary>
-
-        System.Random random = new System.Random();
-        double val = (random.NextDouble() * (max - min) + min);
-        return (float)val;
-    }
 
     float AbsoluteSize(GameObject go)
     {
@@ -271,9 +247,6 @@ public class runExpBackFacing : MonoBehaviour
         // get x,y coordinates of objects
         var vec1 = new Vector2(go1.transform.position.z, go1.transform.position.y);
         var vec2 = new Vector2(go2.transform.position.z, go2.transform.position.y);
-        //Debug.Log("ele_v1: " + vec1);
-        //Debug.Log("ele_v2: " + vec2);
-        // get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.x, Camera.main.transform.position.y);
         // calc angle, removing offset from camera
@@ -281,46 +254,21 @@ public class runExpBackFacing : MonoBehaviour
 
     }
 
-    Quaternion CalcEleGivenAng(float ang, float dis)
-    {
-        ///<summary>
-        /// Given an angle, calculate its position in Unity coordinates
-        ///</summary>
-        Debug.Log("Elevation angle: " + ang);
-        //Quaternion pos = Quaternion.Euler(0, ang, 0);
-        Quaternion pos = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y + ang, Vector3.up);
-            //* Vector3.forward * dis;
-        Debug.Log("Elevation as quaternion: " + pos.eulerAngles);
-        return pos;
 
-    }
-
-    Quaternion CalcAziGivenAng(float ang, float dis)
-    {
-        ///<summary>
-        /// Given an angle, calculate its position in Unity coordinates
-        ///</summary>
-        Debug.Log("Azimuth angle: " + ang);
-        Quaternion pos = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.x + ang, Vector3.right);
-        //* Vector3.forward * dis;
-        //Quaternion pos = Quaternion.Euler(ang, 0, 0);
-        Debug.Log("Azimuth as quaternion: " + pos.eulerAngles);
-        return pos;
-
-    }
-
-    Vector3 CalcPosGivenAziEle(float azi, float ele, float dis)
+    Vector3 CalcPosGivenAziEle(float val1, float val2, float dis)
     {
         ///<summary>
         /// Given elevation and azimuth, calculate its position in Unity coordinates
         ///</summary>
-        //TODO: Get this piece of crap written so that I have a magnitude to this rotation vector
-        //Quaternion rot = Quaternion.Euler(azi, ele, 0);
-        //Vector3 pos = rot * Vector3.forward * dis;
-        //Debug.Log(pos + Camera.main.transform.position);
-        //return pos + Camera.main.transform.position;
-        Quaternion rotX = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.x + ele, Vector3.left);
-        Quaternion rotY = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y + azi, Vector3.up);
+        
+        // calculate the x,y rotation of object
+        Quaternion rotX = Quaternion.AngleAxis(
+            Camera.main.transform.eulerAngles.x + val2, Vector3.left
+            );
+        Quaternion rotY = Quaternion.AngleAxis(
+            Camera.main.transform.eulerAngles.y + val1, Vector3.up
+            );
+        // incorporate x,y rotation and magnitude to find location
         Vector3 pos = rotX*rotY * Vector3.forward * dis;
         Debug.Log(pos + Camera.main.transform.position);
         return pos+Camera.main.transform.position;
