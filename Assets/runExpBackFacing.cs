@@ -26,7 +26,7 @@ public class runExpBackFacing : MonoBehaviour
     
     protected StreamWriter resultStream;
     protected StreamReader trialReader = null;
-    protected string text = " "; // assigned to allow first line to be read below
+    protected string text = " "; // allow first line to be read below
     protected string[] conds = null;
 
     private float meshSz;
@@ -43,13 +43,13 @@ public class runExpBackFacing : MonoBehaviour
         /// 
 
         // Read in trial conditions from file
+        // TODO: Put in try-catch-except block
         FileInfo sourceFile = new FileInfo (Application.dataPath + 
             "/Resources/test_ang.csv");
         trialReader = sourceFile.OpenText();
         text = trialReader.ReadLine();
         text = trialReader.ReadLine();
 
-        //Debug.Log(text);
         conds = text.Split(',');
 
 
@@ -113,6 +113,19 @@ public class runExpBackFacing : MonoBehaviour
             if (conds[0] == "2")
             {
                 Debug.Log("2AFC");
+
+                // User confirms their manipulation
+                if (Input.GetKeyDown("space"))
+                {
+                    OutputTrialResults();
+                    isTrial = false;
+                    Destroy(stimObj);
+                }
+                // Toggle between objects
+                //else if (Input.GetKeyDown("right") | Input.GetKeyDown("left"))
+                //{ 
+                    // change selected object
+                //}
             }
         }
         else
@@ -146,6 +159,7 @@ public class runExpBackFacing : MonoBehaviour
         /// elevation from reference to stimuli, and the trial duration
         /// </summary>
 
+        string trialResponses = string.Empty;
         float refLen = AbsoluteSize(refObj);
         float adjLen = AbsoluteSize(stimObj);
         float azi = CalcAzimuth(stimObj, refObj);
@@ -155,14 +169,36 @@ public class runExpBackFacing : MonoBehaviour
         trialEndTime = System.DateTime.Now;
         trialDuration = trialEndTime - trialStartTime;
 
-        string trialResponses =
-           (refLen.ToString() + ',' + azi.ToString() + ',' +
-           ele.ToString() + ',' + trialDuration.ToString() + ',' +
-           adjLen.ToString() + Environment.NewLine);
+        if (conds[0] == "A")
+        {
+            trialResponses =
+               (refLen.ToString() + ',' + azi.ToString() + ',' +
+               ele.ToString() + ',' + trialDuration.ToString() + ',' +
+               adjLen.ToString() + Environment.NewLine);
+        }
+        else if (conds[1] == "2")
+        {
+            trialResponses = ("2AFC responses");
+            // string sel = selected;
+            //string trialResponses =
+            //(refLen.ToString() + ',' + azi.ToString() + ',' +
+            //ele.ToString() + ',' + trialDuration.ToString() + ',' +
+            //adjLen.ToString() + Environment.NewLine);
+        }
 
-        resultStream = new StreamWriter(folderName + "/p" + participantNo + "_test.csv", append: true);
+        try 
+        { 
+        resultStream = new StreamWriter
+            (
+            folderName + "/p" + participantNo + "_test.csv", append: true
+            );
         resultStream.Write(trialResponses);
         resultStream.Close();
+        }
+        catch(Exception e)
+        {
+            Debug.Log("Cannot write to file or generate results");
+        }
 
     }
 
