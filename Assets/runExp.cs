@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class runExpBackFacing : MonoBehaviour
+public class runExp : MonoBehaviour
 {
     /// <summary>
     /// Main class for the Depth Constancy experiment described by Allison and
