@@ -257,7 +257,8 @@ public class runExpDemo : MonoBehaviour
         // get x,z coordinates of objects
         var vec1 = new Vector2(go1.transform.position.x, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.x, go2.transform.position.z);
-
+        //Debug.Log(vec1);
+        //Debug.Log(vec2);
         // get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.x, Camera.main.transform.position.z);
@@ -275,7 +276,8 @@ public class runExpDemo : MonoBehaviour
         // get x,y coordinates of objects
         var vec1 = new Vector2(go1.transform.position.y, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.y, go2.transform.position.z);
-
+        //Debug.Log(vec1);
+        //Debug.Log(vec2);
         // get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.y, Camera.main.transform.position.z);
@@ -289,60 +291,36 @@ public class runExpDemo : MonoBehaviour
         //mf MeshFilter = mdl.GetComponent<MeshFilter>();
         var objBounds =  go.GetComponent<Renderer>().bounds;
 
-        float s = 3f;
-        float w = 1.5f;
-
-        Vector3 topFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, s, w)));
-        Vector3 topFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, s, w)));
-        Vector3 topBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, s, -w)));
-        Vector3 topBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, s, -w)));
-        Vector3 bottomFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, -s, w)));
-        Vector3 bottomFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, -s, w)));
-        Vector3 bottomBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, -s, -w)));
-        Vector3 bottomBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, -s, -w)));
+        Vector3 topFrontRight = (objBounds.center + objBounds.extents);
+        Vector3 topFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, 1, 1)));
+        Vector3 topBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, 1, -1)));
+        Vector3 topBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, 1, -1)));
+        Vector3 bottomFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, -1, 1)));
+        Vector3 bottomFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, -1, 1)));
+        Vector3 bottomBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, -1, -1)));
+        Vector3 bottomBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, -1, -1)));
 
         LineRenderer lnRend = go.GetComponent<LineRenderer>();
         lnRend.SetColors(Color.red, Color.red);
-        lnRend.startWidth = 0.01f;
-        lnRend.endWidth = 0.01f;
-        lnRend.positionCount = 16;
+        lnRend.startWidth = 0.1f;
+        lnRend.endWidth = 0.1f;
+        lnRend.positionCount = 8;
 
         Vector3 test1 = new Vector3(500.9f, 2.0f, 500.8f);
         Vector3 test2 = new Vector3(499.1f, 1.2f, 500.8f);
 
         //Debug.DrawLine(test1, test2,Color.red);
         Debug.Log(objBounds.center + ", " + objBounds.extents);
-        Debug.Log(topFrontLeft);
 
 
         lnRend.SetPosition(0, topFrontLeft);
-        lnRend.SetPosition(1, bottomFrontLeft);
-        lnRend.SetPosition(2, bottomFrontRight);
-        lnRend.SetPosition(3, topFrontRight);
-        lnRend.SetPosition(4, topFrontLeft);
-
-        lnRend.SetPosition(5, topBackLeft);
-        lnRend.SetPosition(6, bottomBackLeft);
-        lnRend.SetPosition(7, bottomBackRight);
-        lnRend.SetPosition(8, topBackRight);
-        lnRend.SetPosition(9, topBackLeft);
-
-        lnRend.SetPosition(10, topBackRight);
-        lnRend.SetPosition(11, topFrontRight);
-
-        lnRend.SetPosition(12, bottomFrontRight);
-        lnRend.SetPosition(13, bottomBackRight);
-
-        lnRend.SetPosition(14, bottomBackLeft);
-        lnRend.SetPosition(15, bottomFrontLeft);
-
-
-
-        //lnRend.SetPosition(2, topBackRight);
-        //lnRend.SetPosition(3, topBackLeft);
-
-        //lnRend.SetPosition(4, bottomBackRight);
-        //lnRend.SetPosition(5, bottomBackLeft);
+        lnRend.SetPosition(1, topFrontRight);
+        lnRend.SetPosition(2, topBackRight);
+        lnRend.SetPosition(3, topBackLeft);
+        lnRend.SetPosition(4, bottomFrontRight);
+        lnRend.SetPosition(5, bottomFrontLeft);
+        lnRend.SetPosition(6, bottomBackRight);
+        lnRend.SetPosition(7, bottomBackLeft);
     }
 
 }
