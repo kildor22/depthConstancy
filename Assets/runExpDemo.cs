@@ -20,8 +20,6 @@ public class runExpDemo : MonoBehaviour
     public GameObject stimObj;
     public GameObject refObj;
 
-    private GameObject selObj;
-
     // Trial duration calculations
     public System.TimeSpan trialDuration;
     public System.DateTime trialStartTime;
@@ -54,7 +52,6 @@ public class runExpDemo : MonoBehaviour
         // Put reference and stimuli into environment
         InstantiateReference();
         InstantiateStimuli();
-        selObj = refObj;
 
         // Mesh size for calculating absolute measurements
         meshSz = stimObj.GetComponent<MeshFilter>().mesh.bounds.size.z;
@@ -85,15 +82,17 @@ public class runExpDemo : MonoBehaviour
                 isTrial = false;
                 Destroy(stimObj);
             }
-            // Toggle
-            else if (Input.GetKeyDown("right") | Input.GetKeyDown("left"))
+            // Scale stim up
+            else if (Input.GetKeyDown("up"))
             {
-                if (selObj == refObj) { selObj = stimObj; }
-                else if (selObj == stimObj) { selObj = refObj; }
-                
+                AdjLen(stimObj, 0.01f);
                 
             }
-          
+            // Scale stim down
+            else if (Input.GetKeyDown("down"))
+            {
+                AdjLen(stimObj, -0.01f);
+            }
         }
         else
        { 
@@ -109,7 +108,6 @@ public class runExpDemo : MonoBehaviour
                 trialNumber++;
                 InstantiateReference();
                 InstantiateStimuli();
-                selObj = refObj;
                 isTrial = true;
             }
         }
@@ -127,19 +125,11 @@ public class runExpDemo : MonoBehaviour
 
         // dummy variables for testing
         float refLen = AbsoluteSize(refObj);
-        //float adjLen = AbsoluteSize(stimObj);
-        string sel = null;
-        if (selObj == stimObj)
-        {
-            sel = "eccentric object";
-        }
-        else if (selObj == refObj)
-        {
-            sel = "midline object";
-        }
+        float adjLen = AbsoluteSize(stimObj);
         float azi = CalcAzimuth(stimObj,refObj);
         float ele = CalcElevation(stimObj, refObj);
-
+        //Debug.Log(azi);
+        //Debug.Log(ele);
         
         // Find trial duration
         trialEndTime = System.DateTime.Now;
@@ -149,7 +139,7 @@ public class runExpDemo : MonoBehaviour
         string trialResponses = 
            (refLen.ToString() + ',' + azi.ToString() + ',' +
            ele.ToString() + ',' + trialDuration.ToString() + ',' + 
-           sel + Environment.NewLine);
+           adjLen.ToString() + Environment.NewLine);
 
         
         //using (StreamWriter resultStream = File.AppendText(
@@ -172,8 +162,8 @@ public class runExpDemo : MonoBehaviour
         /// </summary>
         
         // Range of azimuth and elevation values
-        float stimX = RandVal(500.9f, 499.1f);
-        float stimY = RandVal(1.2f, 2.0f);
+        float stimX = RandVal(500.5f, 499.3f);
+        float stimY = RandVal(0.95f, 1.78f);
 
         stimObj = (GameObject)Instantiate(mdl, 
            new Vector3(stimX, stimY, 500.8f), Quaternion.identity);
@@ -189,7 +179,7 @@ public class runExpDemo : MonoBehaviour
         /// </summary>
         
         // Reference object is fixed, but changes length
-        refObj = Instantiate(mdl, new Vector3(500f, 1.5f, 500.8f),
+        refObj = Instantiate(mdl, new Vector3(500f, 1.36144f, 500.8f),
                     Quaternion.identity);
         refObj.transform.localScale = new Vector3(1, 1,
             RandVal(0.5f, 1.5f));

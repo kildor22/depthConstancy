@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8157ed2807eaf9242bda3a34673f6ad1
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - mdl: {fileID: 159630, guid: 0011f72ac1dc03d47bf123548e6dd859, type: 3}
+  - stimObj: {instanceID: 0}
+  - refObj: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
