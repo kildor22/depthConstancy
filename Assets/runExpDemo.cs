@@ -19,8 +19,7 @@ public class runExpDemo : MonoBehaviour
 
     public GameObject stimObj;
     public GameObject refObj;
-    private LineRenderer stimLnRend;
-    private LineRenderer refLnRend;
+
     private GameObject selObj;
 
     // Trial duration calculations
@@ -49,6 +48,7 @@ public class runExpDemo : MonoBehaviour
         // Create folder path, create folder in user director
         folderName = Application.persistentDataPath + "/results";
         System.IO.Directory.CreateDirectory(folderName);
+        Debug.Log("Path to my file: {0}\n" +  folderName);
         
 
         // Put reference and stimuli into environment
@@ -57,7 +57,7 @@ public class runExpDemo : MonoBehaviour
         selObj = refObj;
 
         // Mesh size for calculating absolute measurements
-        meshSz = mdl.GetComponent<MeshFilter>().sharedMesh.bounds.size.z;
+        meshSz = stimObj.GetComponent<MeshFilter>().mesh.bounds.size.z;
 
         // Start trial and get sys time for trial duration record
         trialStartTime = System.DateTime.Now;
@@ -88,23 +88,10 @@ public class runExpDemo : MonoBehaviour
             // Toggle
             else if (Input.GetKeyDown("right") | Input.GetKeyDown("left"))
             {
-                if (selObj == refObj) 
-                {
-                    refObj.GetComponent<LineRenderer>().enabled = false;
-                    stimObj.GetComponent<LineRenderer>().enabled = true;
-                    DrawBoundingBox(stimObj);
-                    selObj = stimObj;
-
-                }
-                else if (selObj == stimObj) 
-                {
-                    stimObj.GetComponent<LineRenderer>().enabled = false;
-                    refObj.GetComponent<LineRenderer>().enabled = true;
-                    DrawBoundingBox(refObj);
-                    selObj = refObj;
-                    
-                }
-
+                if (selObj == refObj) { selObj = stimObj; }
+                else if (selObj == stimObj) { selObj = refObj; }
+                
+                
             }
           
         }
@@ -168,7 +155,7 @@ public class runExpDemo : MonoBehaviour
         //using (StreamWriter resultStream = File.AppendText(
         //    folderName + "/p" + participantNo + "_test.csv"));
         //{
-            //Debug.Log(trialResponses);
+            Debug.Log(trialResponses);
             resultStream = new StreamWriter( folderName + "/p" + participantNo + "_test.csv", append: true);
             resultStream.Write(trialResponses);
             resultStream.Close();
@@ -190,8 +177,7 @@ public class runExpDemo : MonoBehaviour
 
         stimObj = (GameObject)Instantiate(mdl, 
            new Vector3(stimX, stimY, 500.8f), Quaternion.identity);
-        stimObj.AddComponent<LineRenderer>();
-
+        
     }
 
     void InstantiateReference()
@@ -207,7 +193,6 @@ public class runExpDemo : MonoBehaviour
                     Quaternion.identity);
         refObj.transform.localScale = new Vector3(1, 1,
             RandVal(0.5f, 1.5f));
-        refObj.AddComponent<LineRenderer>();
 
     }
 
@@ -257,8 +242,8 @@ public class runExpDemo : MonoBehaviour
         // get x,z coordinates of objects
         var vec1 = new Vector2(go1.transform.position.x, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.x, go2.transform.position.z);
-        //Debug.Log(vec1);
-        //Debug.Log(vec2);
+        Debug.Log(vec1);
+        Debug.Log(vec2);
         // get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.x, Camera.main.transform.position.z);
@@ -276,8 +261,8 @@ public class runExpDemo : MonoBehaviour
         // get x,y coordinates of objects
         var vec1 = new Vector2(go1.transform.position.y, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.y, go2.transform.position.z);
-        //Debug.Log(vec1);
-        //Debug.Log(vec2);
+        Debug.Log(vec1);
+        Debug.Log(vec2);
         // get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.y, Camera.main.transform.position.z);
@@ -285,43 +270,5 @@ public class runExpDemo : MonoBehaviour
         return Vector2.SignedAngle(vec1 - vecCam, vec2 - vecCam);
 
     }
-
-    void DrawBoundingBox(GameObject go)
-    {
-        //mf MeshFilter = mdl.GetComponent<MeshFilter>();
-        var objBounds =  go.GetComponent<Renderer>().bounds;
-
-        Vector3 topFrontRight = (objBounds.center + objBounds.extents);
-        Vector3 topFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, 1, 1)));
-        Vector3 topBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, 1, -1)));
-        Vector3 topBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, 1, -1)));
-        Vector3 bottomFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, -1, 1)));
-        Vector3 bottomFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, -1, 1)));
-        Vector3 bottomBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, -1, -1)));
-        Vector3 bottomBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, -1, -1)));
-
-        LineRenderer lnRend = go.GetComponent<LineRenderer>();
-        lnRend.SetColors(Color.red, Color.red);
-        lnRend.startWidth = 0.1f;
-        lnRend.endWidth = 0.1f;
-        lnRend.positionCount = 8;
-
-        Vector3 test1 = new Vector3(500.9f, 2.0f, 500.8f);
-        Vector3 test2 = new Vector3(499.1f, 1.2f, 500.8f);
-
-        //Debug.DrawLine(test1, test2,Color.red);
-        Debug.Log(objBounds.center + ", " + objBounds.extents);
-
-
-        lnRend.SetPosition(0, topFrontLeft);
-        lnRend.SetPosition(1, topFrontRight);
-        lnRend.SetPosition(2, topBackRight);
-        lnRend.SetPosition(3, topBackLeft);
-        lnRend.SetPosition(4, bottomFrontRight);
-        lnRend.SetPosition(5, bottomFrontLeft);
-        lnRend.SetPosition(6, bottomBackRight);
-        lnRend.SetPosition(7, bottomBackLeft);
-    }
-
 }
 
