@@ -22,6 +22,7 @@ public class runExpDemo : MonoBehaviour
     private LineRenderer stimLnRend;
     private LineRenderer refLnRend;
     private GameObject selObj;
+    private Color mater;
 
     // Trial duration calculations
     public System.TimeSpan trialDuration;
@@ -54,6 +55,7 @@ public class runExpDemo : MonoBehaviour
         // Put reference and stimuli into environment
         InstantiateReference();
         InstantiateStimuli();
+        mater = stimObj.GetComponent<Renderer>().material.color;
         selObj = refObj;
 
         // Mesh size for calculating absolute measurements
@@ -92,7 +94,8 @@ public class runExpDemo : MonoBehaviour
                 {
                     refObj.GetComponent<LineRenderer>().enabled = false;
                     stimObj.GetComponent<LineRenderer>().enabled = true;
-                    DrawBoundingBox(stimObj);
+                    stimObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
+                    refObj.GetComponent<Renderer>().material.color = mater;
                     selObj = stimObj;
 
                 }
@@ -100,7 +103,8 @@ public class runExpDemo : MonoBehaviour
                 {
                     stimObj.GetComponent<LineRenderer>().enabled = false;
                     refObj.GetComponent<LineRenderer>().enabled = true;
-                    DrawBoundingBox(refObj);
+                    refObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
+                    stimObj.GetComponent<Renderer>().material.color = mater;
                     selObj = refObj;
                     
                 }
@@ -286,42 +290,7 @@ public class runExpDemo : MonoBehaviour
 
     }
 
-    void DrawBoundingBox(GameObject go)
-    {
-        //mf MeshFilter = mdl.GetComponent<MeshFilter>();
-        var objBounds =  go.GetComponent<Renderer>().bounds;
 
-        Vector3 topFrontRight = (objBounds.center + objBounds.extents);
-        Vector3 topFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, 1, 1)));
-        Vector3 topBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, 1, -1)));
-        Vector3 topBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, 1, -1)));
-        Vector3 bottomFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, -1, 1)));
-        Vector3 bottomFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, -1, 1)));
-        Vector3 bottomBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(1, -1, -1)));
-        Vector3 bottomBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-1, -1, -1)));
-
-        LineRenderer lnRend = go.GetComponent<LineRenderer>();
-        lnRend.SetColors(Color.red, Color.red);
-        lnRend.startWidth = 0.1f;
-        lnRend.endWidth = 0.1f;
-        lnRend.positionCount = 8;
-
-        Vector3 test1 = new Vector3(500.9f, 2.0f, 500.8f);
-        Vector3 test2 = new Vector3(499.1f, 1.2f, 500.8f);
-
-        //Debug.DrawLine(test1, test2,Color.red);
-        Debug.Log(objBounds.center + ", " + objBounds.extents);
-
-
-        lnRend.SetPosition(0, topFrontLeft);
-        lnRend.SetPosition(1, topFrontRight);
-        lnRend.SetPosition(2, topBackRight);
-        lnRend.SetPosition(3, topBackLeft);
-        lnRend.SetPosition(4, bottomFrontRight);
-        lnRend.SetPosition(5, bottomFrontLeft);
-        lnRend.SetPosition(6, bottomBackRight);
-        lnRend.SetPosition(7, bottomBackLeft);
-    }
 
 }
 

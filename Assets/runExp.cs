@@ -23,7 +23,11 @@ public class runExp : MonoBehaviour
     private System.TimeSpan trialDuration;
     private System.DateTime trialStartTime;
     private System.DateTime trialEndTime;
-    
+
+    private LineRenderer stimLnRend;
+    private LineRenderer refLnRend;
+
+
     // Read/write
     protected StreamWriter resultStream;
     protected StreamReader trialReader = null;
@@ -33,7 +37,7 @@ public class runExp : MonoBehaviour
     private float meshSz;
     private bool isTrial;
     private string folderName;
-    private GameObject sel = null;
+    private GameObject selObj = null;
 
 
     void Start()
@@ -67,6 +71,7 @@ public class runExp : MonoBehaviour
         // Put reference and stimuli into environment
         InstantiateReference(conds[4]);
         InstantiateStimuli(conds[2], conds[3]);
+        selObj = refObj;
 
         // Mesh size for calculating absolute measurements
         meshSz = stimObj.GetComponent<MeshFilter>().mesh.bounds.size.z;
@@ -99,6 +104,7 @@ public class runExp : MonoBehaviour
                     OutputTrialResults();
                     isTrial = false;
                     Destroy(stimObj);
+                    Destroy(refObj);
                 }
                 // Scale stim up
                 else if (Input.GetKeyDown("up"))
@@ -122,12 +128,28 @@ public class runExp : MonoBehaviour
                     OutputTrialResults();
                     isTrial = false;
                     Destroy(stimObj);
+                    Destroy(refObj);
                 }
                 // Toggle between objects
-                //else if (Input.GetKeyDown("right") | Input.GetKeyDown("left"))
-                //{ 
-                    // change selected object
-                //}
+                else if (Input.GetKeyDown("right") | Input.GetKeyDown("left"))
+                {
+                    if (selObj == refObj)
+                    {
+                        refObj.GetComponent<LineRenderer>().enabled = false;
+                        stimObj.GetComponent<LineRenderer>().enabled = true;
+                        DrawBoundingBox(stimObj);
+                        selObj = stimObj;
+
+                    }
+                    else if (selObj == stimObj)
+                    {
+                        stimObj.GetComponent<LineRenderer>().enabled = false;
+                        refObj.GetComponent<LineRenderer>().enabled = true;
+                        DrawBoundingBox(refObj);
+                        selObj = refObj;
+
+                    }
+                }
             }
         }
         else
@@ -166,7 +188,7 @@ public class runExp : MonoBehaviour
         float adjLen = AbsoluteSize(stimObj);
         float azi = CalcAzimuth(stimObj, refObj);
         float ele = CalcElevation(stimObj, refObj);
-
+        
         // Find trial duration
         trialEndTime = System.DateTime.Now;
         trialDuration = trialEndTime - trialStartTime;
@@ -180,12 +202,20 @@ public class runExp : MonoBehaviour
         }
         else if (conds[1] == "2")
         {
-            trialResponses = ("2AFC responses");
-            // string sel = selected;
-            //string trialResponses =
-            //(refLen.ToString() + ',' + azi.ToString() + ',' +
-            //ele.ToString() + ',' + trialDuration.ToString() + ',' +
-            //adjLen.ToString() + Environment.NewLine);
+            string sel = "null";
+            if (selObj == stimObj)
+            {
+                sel = "eccentric object";
+            }
+            else if (selObj == refObj)
+            {
+                sel = "midline object";
+            }
+            //string trialResponses = ("2AFC responses");
+            trialResponses =
+            (refLen.ToString() + ',' + azi.ToString() + ',' +
+            ele.ToString() + ',' + trialDuration.ToString() + ',' +
+            adjLen.ToString() + sel + Environment.NewLine);
         }
 
         try 
@@ -213,6 +243,7 @@ public class runExp : MonoBehaviour
         
         stimObj = (GameObject)Instantiate(mdl,
            CalcPosGivenAziEle(float.Parse(val1), float.Parse(val2), 0.8f), Quaternion.identity);
+        stimObj.AddComponent<LineRenderer>();
 
     }
 
@@ -229,6 +260,7 @@ public class runExp : MonoBehaviour
         refObj = Instantiate(mdl, new Vector3(500f, 1.6f, 500.8f),
                     Quaternion.identity);
         refObj.transform.localScale = new Vector3(1, 1, val);
+        refObj.AddComponent<LineRenderer>();
 
     }
 
@@ -310,6 +342,65 @@ public class runExp : MonoBehaviour
         Vector3 pos = rotX*rotY * Vector3.forward * dis;
         Debug.Log(pos + Camera.main.transform.position);
         return pos+Camera.main.transform.position;
+    }
+
+    void DrawBoundingBox(GameObject go)
+    {
+        //mf MeshFilter = mdl.GetComponent<MeshFilter>();
+        var objBounds = go.GetComponent<Renderer>().bounds;
+
+        float s = 3f;
+        float w = 1.5f;
+
+        Vector3 topFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, s, w)));
+        Vector3 topFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, s, w)));
+        Vector3 topBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, s, -w)));
+        Vector3 topBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, s, -w)));
+        Vector3 bottomFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, -s, w)));
+        Vector3 bottomFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, -s, w)));
+        Vector3 bottomBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, -s, -w)));
+        Vector3 bottomBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, -s, -w)));
+
+        LineRenderer lnRend = go.GetComponent<LineRenderer>();
+        lnRend.SetColors(Color.red, Color.red);
+        lnRend.startWidth = 0.01f;
+        lnRend.endWidth = 0.01f;
+        lnRend.positionCount = 16;
+
+
+        //Debug.DrawLine(test1, test2,Color.red);
+        Debug.Log(objBounds.center + ", " + objBounds.extents);
+        Debug.Log(topFrontLeft);
+
+
+        lnRend.SetPosition(0, topFrontLeft);
+        lnRend.SetPosition(1, bottomFrontLeft);
+        lnRend.SetPosition(2, bottomFrontRight);
+        lnRend.SetPosition(3, topFrontRight);
+        lnRend.SetPosition(4, topFrontLeft);
+
+        lnRend.SetPosition(5, topBackLeft);
+        lnRend.SetPosition(6, bottomBackLeft);
+        lnRend.SetPosition(7, bottomBackRight);
+        lnRend.SetPosition(8, topBackRight);
+        lnRend.SetPosition(9, topBackLeft);
+
+        lnRend.SetPosition(10, topBackRight);
+        lnRend.SetPosition(11, topFrontRight);
+
+        lnRend.SetPosition(12, bottomFrontRight);
+        lnRend.SetPosition(13, bottomBackRight);
+
+        lnRend.SetPosition(14, bottomBackLeft);
+        lnRend.SetPosition(15, bottomFrontLeft);
+
+
+
+        //lnRend.SetPosition(2, topBackRight);
+        //lnRend.SetPosition(3, topBackLeft);
+
+        //lnRend.SetPosition(4, bottomBackRight);
+        //lnRend.SetPosition(5, bottomBackLeft);
     }
 
 }
