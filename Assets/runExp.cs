@@ -18,6 +18,11 @@ public class runExp : MonoBehaviour
 
     public GameObject stimObj;
     public GameObject refObj;
+    public float dist = 0.8f;
+
+    // Color and mesh size properties
+    private Color col;
+    private float meshSz;
 
     // Trial duration calculations
     private System.TimeSpan trialDuration;
@@ -28,13 +33,15 @@ public class runExp : MonoBehaviour
     private LineRenderer refLnRend;
 
 
+
+
     // Read/write
     protected StreamWriter resultStream;
     protected StreamReader trialReader = null;
     protected string text = " "; // allow first line to be read below
     protected string[] conds = null;
 
-    private float meshSz;
+    
     private bool isTrial;
     private string folderName;
     private GameObject selObj = null;
@@ -71,6 +78,11 @@ public class runExp : MonoBehaviour
         // Put reference and stimuli into environment
         InstantiateReference(conds[4]);
         InstantiateStimuli(conds[2], conds[3]);
+
+        // Get the starting material for objs to use later for 2AFC selection
+        col = stimObj.GetComponent<Renderer>().material.color;
+
+        // Default selected object for 2 AFC
         selObj = refObj;
 
         // Mesh size for calculating absolute measurements
@@ -120,7 +132,6 @@ public class runExp : MonoBehaviour
             }
             if (conds[0] == "2")
             {
-                Debug.Log("2AFC");
 
                 // User confirms their manipulation
                 if (Input.GetKeyDown("space"))
@@ -135,17 +146,14 @@ public class runExp : MonoBehaviour
                 {
                     if (selObj == refObj)
                     {
-                        refObj.GetComponent<LineRenderer>().enabled = false;
-                        stimObj.GetComponent<LineRenderer>().enabled = true;
-                        DrawBoundingBox(stimObj);
+                        stimObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
+                        refObj.GetComponent<Renderer>().material.color = col;
                         selObj = stimObj;
-
                     }
                     else if (selObj == stimObj)
                     {
-                        stimObj.GetComponent<LineRenderer>().enabled = false;
-                        refObj.GetComponent<LineRenderer>().enabled = true;
-                        DrawBoundingBox(refObj);
+                        refObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
+                        stimObj.GetComponent<Renderer>().material.color = col;
                         selObj = refObj;
 
                     }
@@ -168,6 +176,7 @@ public class runExp : MonoBehaviour
                 trialNumber++;
                 InstantiateReference(conds[4]);
                 InstantiateStimuli(conds[2], conds[3]);
+                selObj = refObj;
                 isTrial = true;
             }
         }
@@ -184,11 +193,11 @@ public class runExp : MonoBehaviour
         /// </summary>
 
         string trialResponses = string.Empty;
-        float refLen = AbsoluteSize(refObj);
-        float adjLen = AbsoluteSize(stimObj);
-        float azi = CalcAzimuth(stimObj, refObj);
-        float ele = CalcElevation(stimObj, refObj);
-        
+        double refLen = Math.Round(AbsoluteSize(refObj),3);
+        double adjLen = Math.Round(AbsoluteSize(stimObj),3);
+        double azi = Math.Round(CalcAzimuth(stimObj, refObj),3);
+        double ele = Math.Round(CalcElevation(stimObj, refObj),3);
+
         // Find trial duration
         trialEndTime = System.DateTime.Now;
         trialDuration = trialEndTime - trialStartTime;
@@ -200,7 +209,7 @@ public class runExp : MonoBehaviour
                ele.ToString() + ',' + trialDuration.ToString() + ',' +
                adjLen.ToString() + Environment.NewLine);
         }
-        else if (conds[1] == "2")
+        else if (conds[0] == "2")
         {
             string sel = "null";
             if (selObj == stimObj)
@@ -215,7 +224,7 @@ public class runExp : MonoBehaviour
             trialResponses =
             (refLen.ToString() + ',' + azi.ToString() + ',' +
             ele.ToString() + ',' + trialDuration.ToString() + ',' +
-            adjLen.ToString() + sel + Environment.NewLine);
+            adjLen.ToString() + ',' + sel + Environment.NewLine);
         }
 
         try 
@@ -225,11 +234,13 @@ public class runExp : MonoBehaviour
             folderName + "/p" + participantNo + "_test.csv", append: true
             );
         resultStream.Write(trialResponses);
+            //Debug.Log(trialResponses);
         resultStream.Close();
         }
         catch(Exception e)
         {
-            Debug.Log("Cannot write to file or generate results");
+            //Debug.Log("Cannot write to file or generate results");
+            Debug.Log(e);
         }
 
     }
@@ -240,12 +251,36 @@ public class runExp : MonoBehaviour
         /// Instantiates the stimuli object from model mdl and with random x
         /// and y values for position (left/right, up/down)
         /// </summary>
-        
-        stimObj = (GameObject)Instantiate(mdl,
-           CalcPosGivenAziEle(float.Parse(val1), float.Parse(val2), 0.8f), Quaternion.identity);
-        stimObj.AddComponent<LineRenderer>();
+
+        if (conds[1] == "R")
+        {
+            stimObj = (GameObject)Instantiate(mdl,
+            CalcPosGivenAziEle(
+                float.Parse(val1), float.Parse(val2), dist), 
+                Quaternion.identity
+                );
+            stimObj.transform.Rotate(
+                 Camera.main.transform.eulerAngles.x + float.Parse(val2), Camera.main.transform.eulerAngles.y + float.Parse(val1), 0.0f, Space.Self
+                );
+            //stimObj.transform.Rotate(
+                //360.0f - float.Parse(val2),  float.Parse(val1), 0.0f, Space.Self
+                //);
+        }
+        if (conds[1] == "S")
+        {
+            stimObj = (GameObject)Instantiate(mdl,
+            CalcPosGivenAziEle(
+                float.Parse(val1), float.Parse(val2), dist), 
+                Quaternion.identity
+                );
+            stimObj.transform.position = new Vector3(
+                stimObj.transform.position.x, stimObj.transform.position.y,
+                500.0f + dist
+                );
+        }
 
     }
+
 
     void InstantiateReference(string len)
     {
@@ -257,10 +292,9 @@ public class runExp : MonoBehaviour
 
         // Reference object is fixed, but changes length
         float val = float.Parse(len);
-        refObj = Instantiate(mdl, new Vector3(500f, 1.6f, 500.8f),
+        refObj = Instantiate(mdl, new Vector3(500f, 1.6f, (500.0f + dist)),
                     Quaternion.identity);
         refObj.transform.localScale = new Vector3(1, 1, val);
-        refObj.AddComponent<LineRenderer>();
 
     }
 
@@ -340,68 +374,10 @@ public class runExp : MonoBehaviour
             );
         // Incorporate x,y rotation and magnitude to find location
         Vector3 pos = rotX*rotY * Vector3.forward * dis;
-        Debug.Log(pos + Camera.main.transform.position);
         return pos+Camera.main.transform.position;
     }
 
-    void DrawBoundingBox(GameObject go)
-    {
-        //mf MeshFilter = mdl.GetComponent<MeshFilter>();
-        var objBounds = go.GetComponent<Renderer>().bounds;
-
-        float s = 3f;
-        float w = 1.5f;
-
-        Vector3 topFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, s, w)));
-        Vector3 topFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, s, w)));
-        Vector3 topBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, s, -w)));
-        Vector3 topBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, s, -w)));
-        Vector3 bottomFrontRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, -s, w)));
-        Vector3 bottomFrontLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, -s, w)));
-        Vector3 bottomBackRight = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(s, -s, -w)));
-        Vector3 bottomBackLeft = (objBounds.center + Vector3.Scale(objBounds.extents, new Vector3(-s, -s, -w)));
-
-        LineRenderer lnRend = go.GetComponent<LineRenderer>();
-        lnRend.SetColors(Color.red, Color.red);
-        lnRend.startWidth = 0.01f;
-        lnRend.endWidth = 0.01f;
-        lnRend.positionCount = 16;
-
-
-        //Debug.DrawLine(test1, test2,Color.red);
-        Debug.Log(objBounds.center + ", " + objBounds.extents);
-        Debug.Log(topFrontLeft);
-
-
-        lnRend.SetPosition(0, topFrontLeft);
-        lnRend.SetPosition(1, bottomFrontLeft);
-        lnRend.SetPosition(2, bottomFrontRight);
-        lnRend.SetPosition(3, topFrontRight);
-        lnRend.SetPosition(4, topFrontLeft);
-
-        lnRend.SetPosition(5, topBackLeft);
-        lnRend.SetPosition(6, bottomBackLeft);
-        lnRend.SetPosition(7, bottomBackRight);
-        lnRend.SetPosition(8, topBackRight);
-        lnRend.SetPosition(9, topBackLeft);
-
-        lnRend.SetPosition(10, topBackRight);
-        lnRend.SetPosition(11, topFrontRight);
-
-        lnRend.SetPosition(12, bottomFrontRight);
-        lnRend.SetPosition(13, bottomBackRight);
-
-        lnRend.SetPosition(14, bottomBackLeft);
-        lnRend.SetPosition(15, bottomFrontLeft);
-
-
-
-        //lnRend.SetPosition(2, topBackRight);
-        //lnRend.SetPosition(3, topBackLeft);
-
-        //lnRend.SetPosition(4, bottomBackRight);
-        //lnRend.SetPosition(5, bottomBackLeft);
-    }
+    
 
 }
 
