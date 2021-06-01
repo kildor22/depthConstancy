@@ -12,13 +12,14 @@ public class runExp : MonoBehaviour
     /// Wilcox (publication pending.) Code written by Cyan Kuo (2021).
     /// </summary>
 
+    // Game models
     public GameObject mdl;
-    public int trialNumber;
+    public int trialNumber; // from older version, might come in useful
     public string participantNo;
 
     public GameObject stimObj;
     public GameObject refObj;
-    public float dist = 0.8f;
+    private GameObject selObj = null;
 
     // Color and mesh size properties
     private Color col;
@@ -39,7 +40,7 @@ public class runExp : MonoBehaviour
 
     private bool isTrial;
     
-    private GameObject selObj = null;
+    
 
 
     void Start()
@@ -65,6 +66,8 @@ public class runExp : MonoBehaviour
 
         }
         text = trialReader.ReadLine();
+        conds = text.Split(',');
+        participantNo = conds[6];        
         text = trialReader.ReadLine();
         conds = text.Split(',');
 
@@ -79,8 +82,8 @@ public class runExp : MonoBehaviour
 
 
         // Put reference and stimuli into environment
-        InstantiateReference(conds[4]);
-        InstantiateStimuli(conds[2], conds[3]);
+        InstantiateReference(conds[4], conds[5]);
+        InstantiateStimuli(conds[2], conds[3], conds[5]);
 
         // Get the starting material for objs to use later for 2AFC selection
         col = stimObj.GetComponent<Renderer>().material.color;
@@ -182,8 +185,8 @@ public class runExp : MonoBehaviour
                 text = trialReader.ReadLine();
                 conds = text.Split(',');
                 trialNumber++;
-                InstantiateReference(conds[4]);
-                InstantiateStimuli(conds[2], conds[3]);
+                InstantiateReference(conds[4], conds[5]);
+                InstantiateStimuli(conds[2], conds[3], conds[5]);
                 selObj = refObj;
                 isTrial = true;
             }
@@ -244,7 +247,7 @@ public class runExp : MonoBehaviour
         { 
         resultStream = new StreamWriter
             (
-            folderName + "/p" + participantNo + "_test.csv", append: true
+            folderName + "/p" + participantNo + "_results.csv", append: true
             );
         resultStream.Write(trialResponses);
         resultStream.Close();
@@ -257,7 +260,7 @@ public class runExp : MonoBehaviour
 
     }
 
-    void InstantiateStimuli(string val1, string val2)
+    void InstantiateStimuli(string val1, string val2, string val3)
     {
         ///<summary>
         /// Instantiates the stimuli object from model mdl and with x and y 
@@ -269,7 +272,7 @@ public class runExp : MonoBehaviour
         {
             stimObj = (GameObject)Instantiate(mdl,
             CalcPosGivenAziEle(
-                float.Parse(val1), float.Parse(val2), dist), 
+                float.Parse(val1), float.Parse(val2), float.Parse(val3)), 
                 Quaternion.identity
                 );
 
@@ -281,20 +284,20 @@ public class runExp : MonoBehaviour
         {
             stimObj = (GameObject)Instantiate(mdl,
             CalcPosGivenAziEle(
-                float.Parse(val1), float.Parse(val2), dist), 
+                float.Parse(val1), float.Parse(val2), float.Parse(val3)), 
                 Quaternion.identity
                 );
 
             // Sets the z distance for straight displacement
             stimObj.transform.position = new Vector3(
                 stimObj.transform.position.x, stimObj.transform.position.y,
-                500.0f + dist
+                500.0f + float.Parse(val3)
                 );
         }
     }
 
 
-    void InstantiateReference(string len)
+    void InstantiateReference(string len, string dist)
     {
         ///<summary>
         /// Instantiates the reference object from model mdl and with random
@@ -304,8 +307,8 @@ public class runExp : MonoBehaviour
 
         // Reference object is fixed, but changes length
         float val = float.Parse(len);
-        refObj = Instantiate(mdl, new Vector3(500f, 1.6f, (500.0f + dist)),
-                    Quaternion.identity);
+        refObj = Instantiate(mdl, new Vector3(500f, 1.6f, 
+            (500.0f + float.Parse(dist))), Quaternion.identity);
         refObj.transform.localScale = new Vector3(1, 1, val);
 
     }
