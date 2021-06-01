@@ -29,21 +29,16 @@ public class runExp : MonoBehaviour
     private System.DateTime trialStartTime;
     private System.DateTime trialEndTime;
 
-    private LineRenderer stimLnRend;
-    private LineRenderer refLnRend;
 
-
-
-
-    // Read/write
+    // Read/write parameters and results
+    private string folderName;
     protected StreamWriter resultStream;
     protected StreamReader trialReader = null;
     protected string text = " "; // allow first line to be read below
     protected string[] conds = null;
 
-    
     private bool isTrial;
-    private string folderName;
+    
     private GameObject selObj = null;
 
 
@@ -55,14 +50,22 @@ public class runExp : MonoBehaviour
         /// </summary>
         /// 
 
-        // Read in trial conditions from file
-        // TODO: Put in try-catch-except block
-        FileInfo sourceFile = new FileInfo (Application.dataPath + 
-            "/Resources/test_ang.csv");
-        trialReader = sourceFile.OpenText();
-        text = trialReader.ReadLine();
-        text = trialReader.ReadLine();
+        // Read in trial conditions from file, potential error reading in
+        try
+        {
+            FileInfo sourceFile = new FileInfo(Application.dataPath +
+                "/Resources/test_ang.csv");
+            trialReader = sourceFile.OpenText();
 
+        }
+        catch(Exception e)
+        {
+            Debug.Log("Cannot open file");
+            Debug.Log(e);
+
+        }
+        text = trialReader.ReadLine();
+        text = trialReader.ReadLine();
         conds = text.Split(',');
 
 
@@ -93,21 +96,26 @@ public class runExp : MonoBehaviour
         isTrial = true;
 
     }
+
+
     void Update()
     {
         ///<summary>
         /// The procedures in this method run every frame, checks for the
         /// confirmation button event, in which case the trial ends and the 
         /// next begins or the script stops if the total trials have been
-        /// reached. If no confirmation is pressed, check for a length
-        /// manipulation button event and adjust the length of stimObj
-        /// accordingly.
+        /// reached. 
+        /// In the case of an adjustment trial, if no confirmation is pressed, 
+        /// check for a length manipulation button event and adjust the length
+        /// of stimObj accordingly.
+        /// In the case of a 2AFC trial, if no confirmation is pressed, check
+        /// for a change in selection. Highlight the selected object in a
+        /// chosen colour.
         ///</summary>
 
         // A trial is in session
         if (isTrial)
         {
-
             if (conds[0] == "A")
             {
                 // User confirms their manipulation
@@ -132,7 +140,6 @@ public class runExp : MonoBehaviour
             }
             if (conds[0] == "2")
             {
-
                 // User confirms their manipulation
                 if (Input.GetKeyDown("space"))
                 {
@@ -144,6 +151,7 @@ public class runExp : MonoBehaviour
                 // Toggle between objects
                 else if (Input.GetKeyDown("right") | Input.GetKeyDown("left"))
                 {
+                    // Highlight selected object
                     if (selObj == refObj)
                     {
                         stimObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
@@ -182,6 +190,7 @@ public class runExp : MonoBehaviour
         }
     }
 
+
     void OutputTrialResults()
     {
         ///<summary>
@@ -189,7 +198,8 @@ public class runExp : MonoBehaviour
         /// results of the trial. Independent variables: refLen - the length of
         /// the reference object, adjLen - the adjusted length of the stimuli
         /// object, azi - the azimuth from reference to stimuli, ele - the
-        /// elevation from reference to stimuli, and the trial duration
+        /// elevation from reference to stimuli, and the trial duration, sel - 
+        /// the currently selected object
         /// </summary>
 
         string trialResponses = string.Empty;
@@ -202,6 +212,8 @@ public class runExp : MonoBehaviour
         trialEndTime = System.DateTime.Now;
         trialDuration = trialEndTime - trialStartTime;
 
+        // Change output string depending on whether the trial is adjustment
+        // or 2AFC
         if (conds[0] == "A")
         {
             trialResponses =
@@ -211,6 +223,7 @@ public class runExp : MonoBehaviour
         }
         else if (conds[0] == "2")
         {
+            // Check which object is currently selected
             string sel = "null";
             if (selObj == stimObj)
             {
@@ -220,13 +233,13 @@ public class runExp : MonoBehaviour
             {
                 sel = "midline object";
             }
-            //string trialResponses = ("2AFC responses");
             trialResponses =
             (refLen.ToString() + ',' + azi.ToString() + ',' +
             ele.ToString() + ',' + trialDuration.ToString() + ',' +
             adjLen.ToString() + ',' + sel + Environment.NewLine);
         }
 
+        // If there are any problems with the output file
         try 
         { 
         resultStream = new StreamWriter
@@ -234,12 +247,11 @@ public class runExp : MonoBehaviour
             folderName + "/p" + participantNo + "_test.csv", append: true
             );
         resultStream.Write(trialResponses);
-            //Debug.Log(trialResponses);
         resultStream.Close();
         }
         catch(Exception e)
         {
-            //Debug.Log("Cannot write to file or generate results");
+            Debug.Log("Cannot write to file or generate results");
             Debug.Log(e);
         }
 
@@ -248,8 +260,9 @@ public class runExp : MonoBehaviour
     void InstantiateStimuli(string val1, string val2)
     {
         ///<summary>
-        /// Instantiates the stimuli object from model mdl and with random x
-        /// and y values for position (left/right, up/down)
+        /// Instantiates the stimuli object from model mdl and with x and y 
+        /// values for position (left/right, up/down) and, in the case of 
+        /// radial displaecment trial parameter, rotation, too
         /// </summary>
 
         if (conds[1] == "R")
@@ -259,12 +272,10 @@ public class runExp : MonoBehaviour
                 float.Parse(val1), float.Parse(val2), dist), 
                 Quaternion.identity
                 );
-            stimObj.transform.Rotate(
-                 Camera.main.transform.eulerAngles.x + float.Parse(val2), Camera.main.transform.eulerAngles.y + float.Parse(val1), 0.0f, Space.Self
-                );
-            //stimObj.transform.Rotate(
-                //360.0f - float.Parse(val2),  float.Parse(val1), 0.0f, Space.Self
-                //);
+
+            // Rotate the object at camera for radial
+            stimObj.transform.LookAt(Camera.main.transform);
+            stimObj.transform.Rotate(180f, 0, 0);
         }
         if (conds[1] == "S")
         {
@@ -273,12 +284,13 @@ public class runExp : MonoBehaviour
                 float.Parse(val1), float.Parse(val2), dist), 
                 Quaternion.identity
                 );
+
+            // Sets the z distance for straight displacement
             stimObj.transform.position = new Vector3(
                 stimObj.transform.position.x, stimObj.transform.position.y,
                 500.0f + dist
                 );
         }
-
     }
 
 

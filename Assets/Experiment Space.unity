@@ -246,6 +246,7 @@ MonoBehaviour:
   participantNo: 
   stimObj: {fileID: 0}
   refObj: {fileID: 0}
+  dist: 0.8
 --- !u!1 &541096545
 GameObject:
   m_ObjectHideFlags: 0
