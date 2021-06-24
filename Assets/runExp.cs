@@ -55,7 +55,7 @@ public class runExp : MonoBehaviour
         try
         {
             FileInfo sourceFile = new FileInfo(Application.dataPath +
-                "/Resources/test_ang.csv");
+                "/StreamingAssets/test_ang.csv");
             trialReader = sourceFile.OpenText();
 
         }
