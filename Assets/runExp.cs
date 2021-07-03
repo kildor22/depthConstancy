@@ -52,10 +52,10 @@ public class runExp : MonoBehaviour
         /// 
 
         // Read in trial conditions from file, potential error reading in
+
         try
         {
-            FileInfo sourceFile = new FileInfo(Application.dataPath +
-                "/StreamingAssets/test_ang.csv");
+            FileInfo sourceFile = new FileInfo(Application.dataPath + "/Resources/test_ang.csv");
             trialReader = sourceFile.OpenText();
 
         }
