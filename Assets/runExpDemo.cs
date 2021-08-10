@@ -11,28 +11,36 @@ public class runExpDemo : MonoBehaviour
     /// Main class for the Depth Constancy experiment described by Allison and
     /// Wilcox (publication pending.) Code written by Cyan Kuo (2021).
     /// </summary>
-
+    
+    // Game models
     public GameObject mdl;
     public int trialNumber;
     public int trialTotal;
     public string participantNo;
 
+    // Object variables
     public GameObject stimObj;
     public GameObject refObj;
-    private LineRenderer stimLnRend;
-    private LineRenderer refLnRend;
-    private GameObject selObj;
-    private Color mater;
+    private GameObject selObj = null;
+
+    // Color and mesh size properties
+    private Color col;
+    private float meshSz;
 
     // Trial duration calculations
     public System.TimeSpan trialDuration;
     public System.DateTime trialStartTime;
     public System.DateTime trialEndTime;
+
+
     public StreamWriter resultStream;
 
-    private float meshSz;
+ 
     private bool isTrial;
     private string folderName;
+
+    public string trialType;
+    public string dispType;
 
     
     void Start()
@@ -44,10 +52,10 @@ public class runExpDemo : MonoBehaviour
 
         // Initialize exp control variables and participant details
         trialNumber = 1;
-        trialTotal = 5;
+        trialTotal = 20;
         participantNo = "00";
 
-        // Create folder path, create folder in user director
+        // Create folder path, create folder in user directory
         folderName = Application.persistentDataPath + "/results";
         System.IO.Directory.CreateDirectory(folderName);
         
@@ -55,16 +63,31 @@ public class runExpDemo : MonoBehaviour
         // Put reference and stimuli into environment
         InstantiateReference();
         InstantiateStimuli();
-        mater = stimObj.GetComponent<Renderer>().material.color;
-        selObj = refObj;
 
         // Mesh size for calculating absolute measurements
         meshSz = mdl.GetComponent<MeshFilter>().sharedMesh.bounds.size.z;
 
+        //Get the starting material color for 2AFC selection
+        col = stimObj.GetComponent<Renderer>().material.color;
+
+        // Default selected obj for 2AFC
+        selObj = refObj;
+
         // Start trial and get sys time for trial duration record
         trialStartTime = System.DateTime.Now;
         isTrial = true;
-        
+
+        // Coin flip: adjustment or 2AFC
+        var rndT = new System.Random();
+        if (rndT.NextDouble() >= 0.5) 
+        {
+            trialType = "2";
+        }
+        else
+        {
+            trialType = "A";
+        }
+
     }
     void Update()
     {
@@ -80,37 +103,64 @@ public class runExpDemo : MonoBehaviour
         // A trial is in session
         if (isTrial)
         {
-            // User confirms their manipulation
-            if (Input.GetKeyDown("space"))
+            if (trialType == "2")
             {
-                OutputTrialResults();
-                isTrial = false;
-                Destroy(stimObj);
-            }
-            // Toggle
-            else if (Input.GetKeyDown("right") | Input.GetKeyDown("left"))
-            {
-                if (selObj == refObj) 
+                // User confirms their manipulation
+                if (OVRInput.GetUp(OVRInput.RawButton.X) | OVRInput.GetUp(OVRInput.RawButton.Y) | OVRInput.GetUp(OVRInput.RawButton.A) | OVRInput.GetUp(OVRInput.RawButton.B))
+                // (Input.GetKeyDown("space"))
                 {
-                    refObj.GetComponent<LineRenderer>().enabled = false;
-                    stimObj.GetComponent<LineRenderer>().enabled = true;
-                    stimObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
-                    refObj.GetComponent<Renderer>().material.color = mater;
-                    selObj = stimObj;
+                    OutputTrialResults();
+                    isTrial = false;
+                    Destroy(stimObj);
+                    Destroy(refObj);
+                }
+                // Toggle
+                else if (Input.GetKeyDown("right") | Input.GetKeyDown("left"))
+                // OVRInput.GetUp(OVRInput.RawButton.LIndexTrigger) | OVRInput.GetUp(OVRInput.RawButton.SecondaryIndexTrigger);
+                {
+                    if (selObj == refObj)
+                    {
+                        stimObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
+                        refObj.GetComponent<Renderer>().material.color = col;
+                        selObj = stimObj;
+
+                    }
+                    else if (selObj == stimObj)
+                    {
+
+                        refObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
+                        stimObj.GetComponent<Renderer>().material.color = col;
+                        selObj = refObj;
+
+                    }
 
                 }
-                else if (selObj == stimObj) 
-                {
-                    stimObj.GetComponent<LineRenderer>().enabled = false;
-                    refObj.GetComponent<LineRenderer>().enabled = true;
-                    refObj.GetComponent<Renderer>().material.color = new Color(0, 204, 102);
-                    stimObj.GetComponent<Renderer>().material.color = mater;
-                    selObj = refObj;
-                    
-                }
-
             }
-          
+            if (trialType == "A") 
+            {
+                // User confirms their manipulation
+                if (OVRInput.GetUp(OVRInput.RawButton.X) | OVRInput.GetUp(OVRInput.RawButton.Y) | OVRInput.GetUp(OVRInput.RawButton.A) | OVRInput.GetUp(OVRInput.RawButton.B))
+                // (Input.GetKeyDown("space"))
+                {
+                    OutputTrialResults();
+                    isTrial = false;
+                    Destroy(stimObj);
+                    Destroy(refObj);
+                }
+                // Scale stim up
+                else if (Input.GetKeyDown("up"))
+                // OVRInput.Get(OVRInput.Button.PrimaryThumbstickUp)| OVRInput.Get(OVRInput.Button.PrimaryThumbstickRight);
+                {
+                    AdjLen(stimObj, 0.01f);
+
+                }
+                // Scale stim down
+                else if (Input.GetKeyDown("down"))
+                // OVRInput.Get(OVRInput.Button.PrimaryThumbstickDown)|;
+                {
+                    AdjLen(stimObj, -0.01f);
+                }
+            }
         }
         else
        { 
@@ -124,6 +174,27 @@ public class runExpDemo : MonoBehaviour
             {
                 trialStartTime = System.DateTime.Now;
                 trialNumber++;
+
+                var rndT = new System.Random();
+                if (rndT.NextDouble() >= 0.5)
+                {
+                    trialType = "2";
+                }
+                else
+                {
+                    trialType = "A";
+                }
+
+                var rndD = new System.Random();
+                if (rndD.NextDouble() >= 0.5)
+                {
+                    dispType = "R";
+                }
+                else 
+                {
+                    dispType = "S";
+                }
+
                 InstantiateReference();
                 InstantiateStimuli();
                 selObj = refObj;
@@ -187,14 +258,50 @@ public class runExpDemo : MonoBehaviour
         /// Instantiates the stimuli object from model mdl and with random x
         /// and y values for position (left/right, up/down)
         /// </summary>
-        
-        // Range of azimuth and elevation values
-        float stimX = RandVal(500.9f, 499.1f);
-        float stimY = RandVal(1.2f, 2.0f);
+  
+        // Determine whether or not adjustment or 2AFC
 
-        stimObj = (GameObject)Instantiate(mdl, 
-           new Vector3(stimX, stimY, 500.8f), Quaternion.identity);
-        stimObj.AddComponent<LineRenderer>();
+        if (dispType == "R")
+        {
+            // Range of azimuth and elevation values
+            float stimX = RandVal(26.5f, -26.5f);
+            float stimY = RandVal(45f, -45f);
+            float stimZ = 0.8f;
+
+            Debug.Log(stimX + ',' + stimY);
+
+            stimObj = (GameObject)Instantiate(mdl,
+            CalcPosGivenAziEle(
+                stimX, stimY, stimZ),
+                Quaternion.identity
+                );
+
+            // Rotate the object at camera for radial
+            stimObj.transform.LookAt(Camera.main.transform);
+            stimObj.transform.Rotate(180f, 0, 0);
+        }
+        else if (dispType == "S")
+        {
+            
+            // Range of azimuth and elevation values
+            float stimX = RandVal(26.5f, -26.5f);
+            float stimY = RandVal(45f, -45f);
+            float stimZ = 0.8f;
+
+            Debug.Log(stimX + ',' + stimY);
+
+            stimObj = (GameObject)Instantiate(mdl, 
+                CalcPosGivenAziEle(
+                stimX, stimY, stimZ), 
+                Quaternion.identity
+                );
+
+            // Sets the z distance for straight displacement
+            stimObj.transform.position = new Vector3(
+                stimObj.transform.position.x, stimObj.transform.position.y,
+                500.0f + stimZ
+                );
+        }
 
     }
 
@@ -211,7 +318,6 @@ public class runExpDemo : MonoBehaviour
                     Quaternion.identity);
         refObj.transform.localScale = new Vector3(1, 1,
             RandVal(0.5f, 1.5f));
-        refObj.AddComponent<LineRenderer>();
 
     }
 
@@ -261,9 +367,8 @@ public class runExpDemo : MonoBehaviour
         // get x,z coordinates of objects
         var vec1 = new Vector2(go1.transform.position.x, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.x, go2.transform.position.z);
-        //Debug.Log(vec1);
-        //Debug.Log(vec2);
-        // get camera offset along the same axes
+
+        // Get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.x, Camera.main.transform.position.z);
         // calc angle, removing offset from camera
@@ -280,14 +385,30 @@ public class runExpDemo : MonoBehaviour
         // get x,y coordinates of objects
         var vec1 = new Vector2(go1.transform.position.y, go1.transform.position.z);
         var vec2 = new Vector2(go2.transform.position.y, go2.transform.position.z);
-        //Debug.Log(vec1);
-        //Debug.Log(vec2);
         // get camera offset along the same axes
         var vecCam = new Vector2
             (Camera.main.transform.position.y, Camera.main.transform.position.z);
         // calc angle, removing offset from camera
         return Vector2.SignedAngle(vec1 - vecCam, vec2 - vecCam);
 
+    }
+
+    Vector3 CalcPosGivenAziEle(float val1, float val2, float dis)
+    {
+        ///<summary>
+        /// Given elevation and azimuth, calculate its position in Unity coordinates
+        ///</summary>
+
+        // Calculate the x,y rotation of object
+        Quaternion rotX = Quaternion.AngleAxis(
+            Camera.main.transform.eulerAngles.x + val2, Vector3.left
+            );
+        Quaternion rotY = Quaternion.AngleAxis(
+            Camera.main.transform.eulerAngles.y + val1, Vector3.up
+            );
+        // Incorporate x,y rotation and magnitude to find location
+        Vector3 pos = rotX * rotY * Vector3.forward * dis;
+        return pos + Camera.main.transform.position;
     }
 
 

@@ -76,7 +76,7 @@ public class runExp : MonoBehaviour
         trialNumber = 1;
         participantNo = "00";
 
-        // Create folder path, create folder in user director
+        // Create folder path, create folder in user directory
         folderName = Application.persistentDataPath + "/results";
         System.IO.Directory.CreateDirectory(folderName);
 
@@ -181,6 +181,8 @@ public class runExp : MonoBehaviour
             // Initialize new trial
             else
             {
+                Destroy(stimObj);
+                Destroy(refObj);
                 trialStartTime = System.DateTime.Now;
                 text = trialReader.ReadLine();
                 conds = text.Split(',');
