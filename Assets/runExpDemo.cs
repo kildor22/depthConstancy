@@ -68,7 +68,7 @@ public class runExpDemo : MonoBehaviour
         meshSz = mdl.GetComponent<MeshFilter>().sharedMesh.bounds.size.z;
 
         //Get the starting material color for 2AFC selection
-        col = stimObj.GetComponent<Renderer>().material.color;
+        col = mdl.GetComponent<Renderer>().sharedMaterial.color;
 
         // Default selected obj for 2AFC
         selObj = refObj;
