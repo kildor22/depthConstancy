@@ -1,5 +1,0 @@
-<<<<<<< HEAD
-﻿{"cameraMode":{"drawMode":0,"name":"Shaded","section":"Shading Mode"},"sceneLighting":true,"audioPlay":false,"sceneViewState":{"showFog":true,"showMaterialUpdate":true,"showSkybox":true,"showFlares":true,"showImageEffects":true,"showParticleSystems":true},"in2DMode":false,"pivot":{"x":499.7874755859375,"y":-0.6407272815704346,"z":501.9610900878906},"rotation":{"x":-0.31122714281082156,"y":0.10043445974588394,"z":-0.03300538659095764,"w":-0.9444664716720581},"size":4.085845947265625,"orthographic":false}
-=======
-﻿{"cameraMode":{"drawMode":0,"name":"Shaded","section":"Shading Mode"},"sceneLighting":true,"audioPlay":false,"sceneViewState":{"showFog":true,"showMaterialUpdate":true,"showSkybox":true,"showFlares":true,"showImageEffects":true,"showParticleSystems":true},"in2DMode":false,"pivot":{"x":479.4839782714844,"y":-5.5964202880859379,"z":653.8253784179688},"rotation":{"x":0.12002671509981156,"y":0.004515726584941149,"z":-0.0006701627280563116,"w":0.9928255677223206},"size":45.37461853027344,"orthographic":false}
->>>>>>> parent of 5434435 (Revert "Using new file reading method")
