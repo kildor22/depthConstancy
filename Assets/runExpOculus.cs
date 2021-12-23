@@ -5,11 +5,16 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class runExpDemo : MonoBehaviour
+public class runExpOculus : MonoBehaviour
 {
     /// <summary>
     /// Main class for the Depth Constancy experiment described by Allison and
     /// Wilcox (publication pending.) Code written by Cyan Kuo (2021).
+    /// This file is working on the Oculus Quest 2, but doesn't read/write to 
+    /// device, still needs the stimuli to move with the head and requires
+    /// tweaks to controls. The partner script, runExp is stable and works on 
+    /// PC and was used to demonstrate the "look" and functionality of the
+    /// experiment. Highly recommend loading via SideQuest.
     /// </summary>
     
     // Game models
@@ -78,6 +83,7 @@ public class runExpDemo : MonoBehaviour
         isTrial = true;
 
         // Coin flip: adjustment or 2AFC
+        // TODO: Figure out how best to handle reading in exp files
         var rndT = new System.Random();
         if (rndT.NextDouble() >= 0.5) 
         {

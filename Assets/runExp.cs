@@ -8,8 +8,9 @@ using UnityEngine;
 public class runExp : MonoBehaviour
 {
     /// <summary>
-    /// Main class for the Depth Constancy experiment described by Allison and
+    /// Test class for the Depth Constancy experiment described by Allison and
     /// Wilcox (publication pending.) Code written by Cyan Kuo (2021).
+    /// This is a demonstration of how
     /// </summary>
 
     // Game models
@@ -277,7 +278,6 @@ public class runExp : MonoBehaviour
                 float.Parse(val1), float.Parse(val2), float.Parse(val3)), 
                 Quaternion.identity
                 );
-
             // Rotate the object at camera for radial
             stimObj.transform.LookAt(Camera.main.transform);
             stimObj.transform.Rotate(180f, 0, 0);

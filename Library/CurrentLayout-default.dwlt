@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 679, y: 492}
   m_MaxSize: {x: 14002, y: 14042}
   vertical: 0
-  controlID: 84
+  controlID: 137
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -219,7 +219,7 @@ MonoBehaviour:
   m_MinSize: {x: 403, y: 492}
   m_MaxSize: {x: 10001, y: 14042}
   vertical: 1
-  controlID: 124
+  controlID: 84
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -338,20 +338,20 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Stylize Sand Texture/Textures
+    - Assets
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Stylize Sand Texture/Textures
+  - Assets
   m_LastFoldersGridSize: -1
   m_LastProjectPath: D:\Users\Cybernide\Documents\GitHub\DepthConstancy_OculusQuest\DepthConstancy_OculusQuest
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: fe3f0000
-    m_LastClickedID: 16382
-    m_ExpandedIDs: 00000000ae3f0000fa3f000000ca9a3b
+    m_SelectedIDs: ae3f0000
+    m_LastClickedID: 16302
+    m_ExpandedIDs: 00000000ae3f0000cc3f000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -502,9 +502,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 
+      m_SelectedIDs: 08350000
       m_LastClickedID: 0
-      m_ExpandedIDs: 64fbffff
+      m_ExpandedIDs: 46fbffff56fbffff62fbffff64fbffff243f0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -614,7 +614,7 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: -0.0136069115, y: -0.9716535, z: 0.22884916, w: -0.0577777}
     speed: 2
-    m_Value: {x: 0.0136069115, y: 0.9716535, z: -0.22884916, w: 0.0577777}
+    m_Value: {x: -0.013606872, y: -0.9716507, z: 0.2288485, w: -0.057777535}
   m_Size:
     m_Target: 0.6005391
     speed: 2
@@ -694,8 +694,8 @@ MonoBehaviour:
     vZoomLockedByDefault: 0
     m_HBaseRangeMin: -418.5
     m_HBaseRangeMax: 418.5
-    m_VBaseRangeMin: -223
-    m_VBaseRangeMax: 223
+    m_VBaseRangeMin: -212.5
+    m_VBaseRangeMax: 212.5
     m_HAllowExceedBaseRangeMin: 1
     m_HAllowExceedBaseRangeMax: 1
     m_VAllowExceedBaseRangeMin: 1
@@ -712,11 +712,11 @@ MonoBehaviour:
     m_DrawArea:
       serializedVersion: 2
       x: 0
-      y: 0
+      y: 21
       width: 837
-      height: 446
+      height: 425
     m_Scale: {x: 1, y: 1}
-    m_Translation: {x: 418.5, y: 223}
+    m_Translation: {x: 418.5, y: 212.5}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
@@ -724,9 +724,9 @@ MonoBehaviour:
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
       x: -418.5
-      y: -223
+      y: -212.5
       width: 837
-      height: 446
+      height: 425
     m_MinimalGUI: 1
   m_defaultScale: 1
   m_LastWindowPixelSize: {x: 837, y: 446}
