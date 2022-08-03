@@ -1,0 +1,25 @@
+Trial Type (Adjustment/2AFC),Displacement Type (Straight/Radial),Eccentric Object Azimuth (degrees),Eccentric Object Elevation (degrees),Midline Object Length (metres),Stimuli Distance from Camera (metres)
+Adjustment,Straight,26.5,0,0.5,0.8
+Adjustment,Straight,26.5,26.5,0.5,0.8
+Adjustment,Straight,0,45,0.5,0.8
+Adjustment,Straight,-26.5,45,0.5,0.8
+Adjustment,Straight,-26.5,0,2,0.8
+Adjustment,Straight,-26.5,-45,2,0.8
+Adjustment,Straight,0,-45,2,0.8
+2AFC,Straight,26.5,-45,2,0.8
+2AFC,Straight,26.5,0,0.5,0.8
+2AFC,Straight,26.5,45,0.5,0.8
+2AFC,Straight,0,45,0.5,0.8
+2AFC,Straight,-26.5,45,0.5,0.8
+2AFC,Straight,-26.5,0,2,0.8
+2AFC,Straight,-26.5,-45,2,0.8
+2AFC,Straight,0,-45,2,0.8
+2AFC,Straight,26.5,-45,2,0.8
+Adjustment,Radial,26.5,0,0.5,0.8
+Adjustment,Radial,26.5,45,0.5,0.8
+Adjustment,Radial,0,45,0.5,0.8
+Adjustment,Radial,-26.5,45,0.5,0.8
+Adjustment,Radial,-26.5,0,2,0.8
+Adjustment,Radial,-26.5,-45,2,0.8
+Adjustment,Radial,0,-45,2,0.8
+Adjustment,Radial,26.5,-45,2,0.8
