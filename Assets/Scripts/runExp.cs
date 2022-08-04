@@ -67,8 +67,10 @@ public class runExp : MonoBehaviour
     private InputAction downXR;
     
     //Conditions:
-    //Trial Type, Displacement Type, Eccentric Object Azimuth, Eccentric Object Elevation, Midline Object Length, Stimuli Distance, UserID
-
+    /*Trial Type, Displacement Type, Eccentric Object Azimuth, Eccentric Object Elevation, Eccentric Object Length, 
+    Reference Object Azimuth, Reference Object Elevation, Reference Object Length,
+     Stimuli Distance, UserID
+    */
     void Awake()
     {
         kbActions = new KeyboardInputActions();
@@ -186,8 +188,8 @@ public class runExp : MonoBehaviour
             sceneSettings.UseDefaultSkybox = true; //once started, load default skybox
 
             // Put reference and stimuli into environment
-            InstantiateReference(conds[4], conds[5]);
-            InstantiateStimuli(conds[2], conds[3], conds[5]);
+            InstantiateReference(conds[7], conds[8]);
+            InstantiateStimuli(conds[2], conds[3], conds[8], conds[4]);
 
             // Get the starting material for objs to use later for 2AFC selection
             mat = stimObj.GetComponent<Renderer>().material;
@@ -310,8 +312,8 @@ public class runExp : MonoBehaviour
 
         trialNumber++;
 
-        InstantiateReference(conds[4], conds[5]); 
-        InstantiateStimuli(conds[2], conds[3], conds[5]);
+        InstantiateReference(conds[7], conds[8]); 
+        InstantiateStimuli(conds[2], conds[3], conds[8], conds[4]);
         selObj = refObj;
         isTrial = true;
         Debug.Log("Trial " + trialNumber + " | " + conds[0] + " | " + "Displacement: " + conds[1]);
@@ -388,7 +390,7 @@ public class runExp : MonoBehaviour
 
     }
 
-    void InstantiateStimuli(string elevation, string azimuth, string distance)
+    void InstantiateStimuli(string azimuth, string elevation, string distance)
     {
         ///<summary>
         /// Instantiates the stimuli object from model mdl and with x and y 
@@ -399,7 +401,7 @@ public class runExp : MonoBehaviour
         if (conds[1] == "Radial")
         {
             stimObj = (GameObject)Instantiate(mdl,
-            CalcPosGivenAziEle(float.Parse(elevation), float.Parse(azimuth), float.Parse(distance)), 
+            CalcPosGivenAziEle(float.Parse(azimuth), float.Parse(elevation), float.Parse(distance)), 
             Quaternion.identity, camTransform);
 
             // Rotate the object at camera for radial
@@ -409,7 +411,7 @@ public class runExp : MonoBehaviour
         if (conds[1] == "Straight")
         {
             stimObj = (GameObject)Instantiate(mdl,
-            CalcPosGivenAziEle(float.Parse(elevation), float.Parse(azimuth), float.Parse(distance)), 
+            CalcPosGivenAziEle(float.Parse(azimuth), float.Parse(elevation), float.Parse(distance)), 
             Quaternion.identity, camTransform
                 );
 
@@ -420,7 +422,40 @@ public class runExp : MonoBehaviour
                 );
         }
     }
+    //Overload of InstantiateStimuli with string param "length" to customize length of stimuli object
+    void InstantiateStimuli(string azimuth, string elevation, string distance, string length)
+    {
+        ///<summary>
+        /// Instantiates the stimuli object from model mdl and with x and y 
+        /// values for position (left/right, up/down) and, in the case of 
+        /// radial displaecment trial parameter, rotation, too
+        /// </summary>
 
+        if (conds[1] == "Radial")
+        {
+            stimObj = (GameObject)Instantiate(mdl,
+            CalcPosGivenAziEle(float.Parse(azimuth), float.Parse(elevation), float.Parse(distance)), 
+            Quaternion.identity, camTransform);
+
+            // Rotate the object at camera for radial
+            stimObj.transform.LookAt(Camera.main.transform);
+            stimObj.transform.Rotate(180f, 0, 0);
+        }
+        if (conds[1] == "Straight")
+        {
+            stimObj = (GameObject)Instantiate(mdl,
+            CalcPosGivenAziEle(float.Parse(azimuth), float.Parse(elevation), float.Parse(distance)), 
+            Quaternion.identity, camTransform
+                );
+
+            // Sets the z distance for straight displacement
+            stimObj.transform.position = new Vector3(
+                stimObj.transform.position.x, stimObj.transform.position.y,
+                500.0f + float.Parse(distance)
+                );
+        }
+        stimObj.transform.localScale = new Vector3(1, 1, float.Parse(length)); //change stim obj length along z axis
+    }
 
     void InstantiateReference(string len, string dist)
     {
@@ -437,6 +472,23 @@ public class runExp : MonoBehaviour
         refObj.transform.localScale = new Vector3(1, 1, val);
 
     }
+    // Overload of function InstantiateReference with params "azimuth" and "elevation" to change reference obj position in 3D space
+    void InstantiateReference(string len, string distance, string azimuth, string elevation)
+    {
+        ///<summary>
+        /// Instantiates the reference object from model mdl and with defined
+        /// length, and fixed position in front of, and in line with the
+        /// camera.
+        /// </summary>
+
+        // Reference object is fixed, but changes length
+        float val = float.Parse(len);
+        refObj = Instantiate(mdl, CalcPosGivenAziEle(float.Parse(azimuth), float.Parse(elevation), float.Parse(distance)), Quaternion.identity, camTransform);
+        
+        refObj.transform.localScale = new Vector3(1, 1, val);
+
+    }
+
 
 
     float AbsoluteSize(GameObject go)
@@ -508,7 +560,7 @@ public class runExp : MonoBehaviour
         // Calculate the x,y rotation of object !! Azimuth and elevation were swapped earlier and has now been fixed
         Quaternion rotX = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.x + elevation, Vector3.left); //rotates around X axis 
 
-        Quaternion rotY = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y + azimuth, Vector3.up);
+        Quaternion rotY = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y + azimuth, Vector3.up); //rotates around y axis
 
         // Incorporate x,y rotation and magnitude to find location
         Vector3 pos = rotX*rotY * Vector3.forward * distance;
