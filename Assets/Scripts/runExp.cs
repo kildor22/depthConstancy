@@ -188,7 +188,7 @@ public class runExp : MonoBehaviour
             sceneSettings.UseDefaultSkybox = true; //once started, load default skybox
 
             // Put reference and stimuli into environment
-            InstantiateReference(conds[7], conds[8]);
+            InstantiateReference(conds[7], conds[8], conds[5], conds[6]);
             InstantiateStimuli(conds[2], conds[3], conds[8], conds[4]);
 
             // Get the starting material for objs to use later for 2AFC selection
@@ -312,7 +312,7 @@ public class runExp : MonoBehaviour
 
         trialNumber++;
 
-        InstantiateReference(conds[7], conds[8]); 
+        InstantiateReference(conds[7], conds[8], conds[5], conds[6]);
         InstantiateStimuli(conds[2], conds[3], conds[8], conds[4]);
         selObj = refObj;
         isTrial = true;
