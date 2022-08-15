@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using UnityEngine;
+using UnityEditor;
 using UnityEngine.UI;
 using UnityEngine.XR;
 #if ENABLE_INPUT_SYSTEM
@@ -44,6 +45,7 @@ public class runExp : MonoBehaviour
 
 
     // Read/write parameters and results
+    private string filePath;
     private string folderName;
     protected StreamWriter resultStream;
     protected StreamReader trialReader = null;
@@ -75,6 +77,14 @@ public class runExp : MonoBehaviour
     {
         kbActions = new KeyboardInputActions();
         xrActions = new XRInputActions();
+
+        // Create folder path, create folder in user director
+        folderName = Application.persistentDataPath + "/Results";
+        System.IO.Directory.CreateDirectory(folderName);
+
+        //initialize file path to write output csv
+        filePath = folderName + "/p" + participantID + "_group" + participantGroup + "_session" + 
+        participantSession+ "_results.csv";
     }
 
 
@@ -155,10 +165,9 @@ public class runExp : MonoBehaviour
         // Initialize exp control variables and participant details
         trialNumber = 1;
         participantID = "00";
+        
+        InitializeOutput(); //initialize output CSV
 
-        // Create folder path, create folder in user director
-        folderName = Application.persistentDataPath + "/Results";
-        System.IO.Directory.CreateDirectory(folderName);
     }
 
 
@@ -201,7 +210,8 @@ public class runExp : MonoBehaviour
             meshSz = stimObj.GetComponent<MeshFilter>().mesh.bounds.size.z;
 
             // Start trial and get sys time for trial duration record
-            trialStartTime = System.DateTime.Now; isStarted = true;
+            trialStartTime = System.DateTime.Now; 
+            isStarted = true;
             isTrial = true;
             Debug.Log("Trial " + trialNumber + " | " + conds[0] + " | " + "Displacement: " + conds[1]);
            }
@@ -339,7 +349,6 @@ public class runExp : MonoBehaviour
         double adjLen = Math.Round(AbsoluteSize(stimObj),3);
         double azi = Math.Round(CalcAzimuth(stimObj, refObj),3);
         double ele = Math.Round(CalcElevation(stimObj, refObj),3);
-
         // Find trial duration
         trialEndTime = System.DateTime.Now;
         trialDuration = trialEndTime - trialStartTime;
@@ -351,7 +360,7 @@ public class runExp : MonoBehaviour
             trialResponses =
                ("Adjustment" + ',' + refLen.ToString() + ',' + azi.ToString() + ',' +
                ele.ToString() + ',' + trialDuration.ToString() + ',' +
-               adjLen.ToString() + Environment.NewLine);
+               adjLen.ToString());
         }
         else if (conds[0] == "2AFC")
         {
@@ -370,24 +379,7 @@ public class runExp : MonoBehaviour
             ele.ToString() + ',' + trialDuration.ToString() + ',' +
             adjLen.ToString() + ',' + sel + Environment.NewLine);
         }
-
-        // If there are any problems with the output file
-        try 
-        { 
-            resultStream = new StreamWriter
-            (
-            folderName + "/p" + participantID + "_group" + participantGroup + "_session" + 
-            participantSession+ "_results.csv", append: true
-            );
-            resultStream.WriteLine(trialResponses);
-            resultStream.Close();
-        }
-        catch(Exception e)
-        {
-            Debug.Log("Cannot write to file or generate results");
-            Debug.Log(e);
-        }
-
+        WriteRow(filePath, true, trialResponses); //append trial result to initialized output CSV
     }
 
     void InstantiateStimuli(string azimuth, string elevation, string distance)
@@ -567,7 +559,28 @@ public class runExp : MonoBehaviour
         return pos+Camera.main.transform.position;
     }
 
-    
+    private void WriteRow(string path, bool append, string trialResponses)
+    {
+        // If there are any problems with the output file
+        try 
+        { 
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@path, append))
+            {
+                file.WriteLine(trialResponses); //write response (dont forget to close)
+            }
+        }
+        catch(Exception e)
+        {
+            Debug.Log("Cannot write to file or generate results");
+            Debug.Log(e);
+        }
+        
+    }
+    private void InitializeOutput()
+    {
+        string csvHeader = "Trial Type,Reference Length,Azimuth,Elevation,Duration,Adjusted Rod Length,Answer";
+        WriteRow(filePath, false, csvHeader);
+    }
 
 }
 
