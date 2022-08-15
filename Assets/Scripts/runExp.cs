@@ -157,7 +157,7 @@ public class runExp : MonoBehaviour
         participantID = "00";
 
         // Create folder path, create folder in user director
-        folderName = Application.persistentDataPath + "/results";
+        folderName = Application.persistentDataPath + "/Results";
         System.IO.Directory.CreateDirectory(folderName);
     }
 
@@ -349,7 +349,7 @@ public class runExp : MonoBehaviour
         if (conds[0] == "Adjustment")
         {
             trialResponses =
-               (refLen.ToString() + ',' + azi.ToString() + ',' +
+               ("Adjustment" + ',' + refLen.ToString() + ',' + azi.ToString() + ',' +
                ele.ToString() + ',' + trialDuration.ToString() + ',' +
                adjLen.ToString() + Environment.NewLine);
         }
@@ -366,7 +366,7 @@ public class runExp : MonoBehaviour
                 sel = "midline object";
             }
             trialResponses =
-            (refLen.ToString() + ',' + azi.ToString() + ',' +
+            ("2AFC" + ',' +refLen.ToString() + ',' + azi.ToString() + ',' +
             ele.ToString() + ',' + trialDuration.ToString() + ',' +
             adjLen.ToString() + ',' + sel + Environment.NewLine);
         }
