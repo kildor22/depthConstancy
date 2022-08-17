@@ -580,7 +580,7 @@ public class runExp : MonoBehaviour
     }
     private void InitializeOutput()
     {
-        string csvHeader = "Trial Type,Reference Length (metres),Azimuth (deg),Elevation (deg),Duration,Adjusted Rod Length (metres),Answer";
+        string csvHeader = "Trial Type,Reference Length (metres),Azimuth (deg),Elevation (deg),Duration,Eccentric Rod Length (metres),Answer";
         WriteRow(filePath, false, csvHeader);
     }
 
