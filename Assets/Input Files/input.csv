@@ -1,5 +1,5 @@
-Trial Type (Adjustment/2AFC),Displacement Type (Straight/Radial),Eccentric Object Azimuth (degrees),Eccentric Object Elevation (degrees),Eccentric Object Length (metres),Reference Object Azimuth (degrees),Reference Object Elevation (degrees),Reference Object Length (metres),Stimuli Distance from Camera (metres)
-Adjustment,Straight,26.5,0,2,0,0,0.5,0.8
+Trial Type (Adjustment/2AFC),Displacement Type (Straight/Radial),Eccentric Object Azimuth (degrees),Eccentric Object Elevation (degrees),Eccentric Object Length (Unity units),Reference Object Azimuth (degrees),Reference Object Elevation (degrees),Reference Object Length (Unity units),Stimuli Distance from Camera (Unity units)
+Adjustment,Straight,26.5,0,0.5,0,0,1,0.8
 Adjustment,Straight,26.5,26.5,2,0,0,0.5,0.8
 Adjustment,Straight,0,45,2,0,0,0.5,0.8
 Adjustment,Straight,-26.5,45,2,0,0,0.5,0.8

@@ -16,7 +16,7 @@ public class runExp : MonoBehaviour
     /// </summary>
 
     // Game models
-    public GameObject mdl;
+    public GameObject mdl = null;
     public GameObject startMenu;
     public GameObject textStartMenu;
     public Material cyanMaterial;
@@ -327,6 +327,7 @@ public class runExp : MonoBehaviour
         selObj = refObj;
         isTrial = true;
         Debug.Log("Trial " + trialNumber + " | " + conds[0] + " | " + "Displacement: " + conds[1]);
+        Debug.Log("Local scale: " + meshSz * float.Parse(conds[8]));
     }
 
     //BUG: When endofline is reached, close file
@@ -345,7 +346,7 @@ public class runExp : MonoBehaviour
         /// </summary>
 
         string trialResponses = string.Empty;
-        double refLen = Math.Round(AbsoluteSize(refObj),3);
+        double refLen = Math.Round(AbsoluteSize(refObj),3); //are length and absolute size the same?
         double adjLen = Math.Round(AbsoluteSize(stimObj),3);
         double azi = Math.Round(CalcAzimuth(stimObj, refObj),3);
         double ele = Math.Round(CalcElevation(stimObj, refObj),3);
@@ -377,7 +378,7 @@ public class runExp : MonoBehaviour
             trialResponses =
             ("2AFC" + ',' +refLen.ToString() + ',' + azi.ToString() + ',' +
             ele.ToString() + ',' + trialDuration.ToString() + ',' +
-            adjLen.ToString() + ',' + sel + Environment.NewLine);
+            adjLen.ToString() + ',' + sel);
         }
         WriteRow(filePath, true, trialResponses); //append trial result to initialized output CSV
     }
@@ -507,6 +508,7 @@ public class runExp : MonoBehaviour
         var trScl = go.transform.localScale.z;
         // Change local scale
         go.transform.localScale = new Vector3(1, 1, trScl + adj / meshSz);
+        Debug.Log("Mesh Size: " + meshSz + "| transform scale: " + trScl);
     }
 
     float CalcAzimuth(GameObject go1, GameObject go2)
@@ -578,9 +580,16 @@ public class runExp : MonoBehaviour
     }
     private void InitializeOutput()
     {
-        string csvHeader = "Trial Type,Reference Length,Azimuth,Elevation,Duration,Adjusted Rod Length,Answer";
+        string csvHeader = "Trial Type,Reference Length (metres),Azimuth (deg),Elevation (deg),Duration,Adjusted Rod Length (metres),Answer";
         WriteRow(filePath, false, csvHeader);
     }
+
+    /*Note about CSV units:
+    Input - input sizes related to rod are multipliers, not unit sizes. So 0.5 Reference Rod Length 
+    would be 0.5 * unit length of imported mesh (use Mesh.bounds.size.z)
+
+    Output - output sizes are in unit size (cm). 
+    */
 
 }
 
