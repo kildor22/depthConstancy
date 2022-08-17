@@ -511,11 +511,13 @@ public class runExp : MonoBehaviour
         Debug.Log("Mesh Size: " + meshSz + "| transform scale: " + trScl);
     }
 
+    //Check calculations for azimuth and elevation
     float CalcAzimuth(GameObject go1, GameObject go2)
     {
         ///<summary>
         /// Given two game objects, calculate their azimuth
-        /// </summary>
+        /// go1 = test rod, go2 = reference rod
+        ///</summary>
 
         // Get x,z coordinates of objects
         var vec1 = new Vector2(go1.transform.position.x, go1.transform.position.z);
@@ -557,7 +559,7 @@ public class runExp : MonoBehaviour
         Quaternion rotY = Quaternion.AngleAxis(Camera.main.transform.eulerAngles.y + azimuth, Vector3.up); //rotates around y axis
 
         // Incorporate x,y rotation and magnitude to find location
-        Vector3 pos = rotX*rotY * Vector3.forward * distance;
+        Vector3 pos = rotX * rotY * Vector3.forward * distance;
         return pos+Camera.main.transform.position;
     }
 
