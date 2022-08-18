@@ -22,10 +22,6 @@ public class runExp : MonoBehaviour
     public Material cyanMaterial;
     public SceneSettings sceneSettings;
     public int trialNumber; // from older version, might come in useful
-    public string participantID;
-    public string participantGroup;
-    public string participantSession;
-    public string participantName;
     public Transform camTransform;
 
     public bool isStarted = false;
@@ -45,14 +41,15 @@ public class runExp : MonoBehaviour
 
 
     // Read/write parameters and results
-    private string filePath;
-    private string folderName;
+    public CsvManager csv;
     protected StreamWriter resultStream;
     protected StreamReader trialReader = null;
     protected string text = " "; // allow first line to be read below
     protected string[] conds = null;
 
     private bool isTrial;
+    [HideInInspector]
+    public bool infoSubmitted = false; //if user has submitted info
 
     //keyboard controls
     private KeyboardInputActions kbActions;
@@ -78,13 +75,13 @@ public class runExp : MonoBehaviour
         kbActions = new KeyboardInputActions();
         xrActions = new XRInputActions();
 
-        // Create folder path, create folder in user director
-        folderName = Application.persistentDataPath + "/Results";
-        System.IO.Directory.CreateDirectory(folderName);
+        // // Create folder path, create folder in user director
+        // folderName = Application.persistentDataPath + "/Results";
+        // System.IO.Directory.CreateDirectory(folderName);
 
-        //initialize file path to write output csv
-        filePath = folderName + "/p" + participantID + "_group" + participantGroup + "_session" + 
-        participantSession+ "_results.csv";
+        // //initialize file path to write output csv
+        // filePath = folderName + "/p" + participantID + "_group" + participantGroup + "_session" + 
+        // participantSession+ "_results.csv";
     }
 
 
@@ -164,9 +161,7 @@ public class runExp : MonoBehaviour
 
         // Initialize exp control variables and participant details
         trialNumber = 1;
-        participantID = "00";
         
-        InitializeOutput(); //initialize output CSV
 
     }
 
@@ -214,6 +209,13 @@ public class runExp : MonoBehaviour
             isStarted = true;
             isTrial = true;
             Debug.Log("Trial " + trialNumber + " | " + conds[0] + " | " + "Displacement: " + conds[1]);
+           }
+           else
+           {
+                if (infoSubmitted)
+                {
+                    startMenu.SetActive(true);
+                }
            }
 
         }
@@ -380,7 +382,7 @@ public class runExp : MonoBehaviour
             ele.ToString() + ',' + trialDuration.ToString() + ',' +
             adjLen.ToString() + ',' + sel);
         }
-        WriteRow(filePath, true, trialResponses); //append trial result to initialized output CSV
+        csv.WriteRow(filePath, true, trialResponses); //append trial result to initialized output CSV
     }
 
     void InstantiateStimuli(string azimuth, string elevation, string distance)
@@ -563,28 +565,30 @@ public class runExp : MonoBehaviour
         return pos+Camera.main.transform.position;
     }
 
-    private void WriteRow(string path, bool append, string trialResponses)
-    {
-        // If there are any problems with the output file
-        try 
-        { 
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(@path, append))
-            {
-                file.WriteLine(trialResponses); //write response (dont forget to close)
-            }
-        }
-        catch(Exception e)
-        {
-            Debug.Log("Cannot write to file or generate results");
-            Debug.Log(e);
-        }
+    public string filePath{ get; set; }
+
+    // private void WriteRow(string path, bool append, string trialResponses)
+    // {
+    //     // If there are any problems with the output file
+    //     try 
+    //     { 
+    //         using (System.IO.StreamWriter file = new System.IO.StreamWriter(@path, append))
+    //         {
+    //             file.WriteLine(trialResponses); //write response (dont forget to close)
+    //         }
+    //     }
+    //     catch(Exception e)
+    //     {
+    //         Debug.Log("Cannot write to file or generate results");
+    //         Debug.Log(e);
+    //     }
         
-    }
-    private void InitializeOutput()
-    {
-        string csvHeader = "Trial Type,Reference Length (metres),Azimuth (deg),Elevation (deg),Duration,Eccentric Rod Length (metres),Answer";
-        WriteRow(filePath, false, csvHeader);
-    }
+    // }
+    // private void InitializeOutput()
+    // {
+    //     string csvHeader = "Trial Type,Reference Length (metres),Azimuth (deg),Elevation (deg),Duration,Eccentric Rod Length (metres),Answer";
+    //     WriteRow(filePath, false, csvHeader);
+    // }
 
     /*Note about CSV units:
     Input - input sizes related to rod are multipliers, not unit sizes. So 0.5 Reference Rod Length 
